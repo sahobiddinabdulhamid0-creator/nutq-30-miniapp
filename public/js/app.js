@@ -101,7 +101,7 @@ const App = {
       }
       case 'focus': html = Screens.focus(lesson, this.workout.attempt1); break;
       case 'compare': html = Screens.compare(lesson, this.workout.attempt1, this.workout.attempt2); break;
-      case 'completed': html = Screens.completed(params.completion, day < 30 ? this.getLesson(day + 1) : null); break;
+      case 'completed': html = Screens.completed(params.completion, this.user.progress); break;
       case 'library': html = Screens.library(this.content.curriculum); break;
       case 'progress': html = Screens.progress(this.user, this.content.pillars); break;
       case 'profile': html = Screens.profile(this.user, this.devMode, this.capabilities); break;
@@ -157,7 +157,10 @@ const App = {
     const pending = this.pendingAttempts(day);
     this.workout.attempt1 = [...pending].reverse().find(item => item.attemptNumber === 1) || null;
     this.workout.attempt2 = [...pending].reverse().find(item => item.attemptNumber === 2) || null;
-    this.workout.selectedFocus = this.workout.attempt2?.selectedFocus || '';
+    const activeDayFocus = this.user.progress.activeDay?.day === day
+      ? this.user.progress.activeDay.lastSuggestedFocus
+      : '';
+    this.workout.selectedFocus = this.workout.attempt2?.selectedFocus || activeDayFocus || '';
   },
 
   getResumeState(day) {
@@ -174,6 +177,11 @@ const App = {
     if (this.workout.attempt2) return this.render('compare', { day }, true);
     if (this.workout.attempt1) return this.render('focus', { day }, true);
     this.render('lesson', { day }, true);
+  },
+
+  repeatCurrentDay(day) {
+    this.rebuildWorkout(day);
+    this.render('prepare', { day, attemptNumber: 1 }, true);
   },
 
   async submitOnboarding(event) {
@@ -400,7 +408,7 @@ const App = {
     event.preventDefault();
     if (!this.workout.attempt1 || !this.workout.attempt2) return this.toast('Ikki urinish ham kerak.', 'error');
     const values = new FormData(event.currentTarget);
-    this.renderLoading('Kun yakunlanmoqda…', 'Natijalar shaxsiy profilingizga saqlanmoqda.');
+    this.renderLoading('Mashq saqlanmoqda…', 'Kunlik oxirgi ball va o‘sish yangilanmoqda.');
     try {
       const result = await Api.post(`/api/days/${this.workout.day}/complete`, {
         attempt1Id: this.workout.attempt1.id,

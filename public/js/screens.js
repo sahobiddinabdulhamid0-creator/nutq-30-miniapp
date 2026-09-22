@@ -18,6 +18,15 @@ function scoreDescriptor(score) {
   return 'Tabiiy va barqaror';
 }
 
+function remainingTimeLabel(unlocksAt) {
+  const remaining = Math.max(0, new Date(unlocksAt).getTime() - Date.now());
+  if (remaining <= 0) return '24 soat yakunlandi';
+  const totalMinutes = Math.ceil(remaining / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return hours > 0 ? `${hours} soat ${minutes} daqiqa` : `${minutes} daqiqa`;
+}
+
 const Screens = {
   onboarding(user, devMode) {
     const firstName = escapeHtml(user.profile.firstName);
@@ -84,10 +93,26 @@ const Screens = {
     const lesson = curriculum.find(item => item.day === day);
     const completed = progress.completedDays.length;
     const percent = Math.round(completed / 30 * 100);
+    const activeDay = progress.activeDay?.day === day ? progress.activeDay : null;
     const resume = App.getResumeState(day);
-    const cta = resume === 'focus' ? 'Bitta fokus tanlash' : resume === 'compare' ? 'Natijani taqqoslash' : resume === 'analysis2' ? '2-urinish tahlili' : 'Bugungi mashqni boshlash';
-    const ctaAction = resume ? `App.resumeDay(${day})` : `App.navigate('lesson',{day:${day}})`;
+    const programComplete = Boolean(progress.programCompletedAt);
+    const cta = programComplete
+      ? '30 kunlik natijani ko‘rish'
+      : resume === 'focus'
+        ? 'Bitta fokus tanlash'
+        : resume === 'compare'
+          ? 'Natijani taqqoslash'
+          : activeDay?.cyclesCompleted > 0
+            ? 'Bugungi darsni yana takrorlash'
+            : 'Bugungi mashqni boshlash';
+    const ctaAction = programComplete
+      ? "App.navigate('progress')"
+      : resume ? `App.resumeDay(${day})` : `App.navigate('lesson',{day:${day}})`;
     const modelLabel = capabilities?.configured ? `AI faol · ${escapeHtml(capabilities.analysisModel)}` : 'Gemini API sozlanmagan';
+    const growth = activeDay?.growth;
+    const elapsedPercent = activeDay
+      ? Math.max(0, Math.min(100, Math.round((Date.now() - new Date(activeDay.startedAt).getTime()) / (new Date(activeDay.unlocksAt).getTime() - new Date(activeDay.startedAt).getTime()) * 100)))
+      : 0;
 
     return `
       <section class="screen">
@@ -106,6 +131,19 @@ const Screens = {
             <div class="stat"><strong>${progress.latestScore ?? '—'}</strong><small>so‘nggi kun balli</small></div>
           </div>
         </div>
+
+        ${activeDay ? `<div class="card stack">
+          <div class="row-between"><strong>${day}-kun davom etmoqda</strong><span class="pill primary">${remainingTimeLabel(activeDay.unlocksAt)}</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${elapsedPercent}%"></div></div>
+          <div class="stat-grid">
+            <div class="stat"><strong>${activeDay.latestScore ?? '—'}</strong><small>joriy kun bali</small></div>
+            <div class="stat"><strong>${growth == null ? '—' : `${growth > 0 ? '+' : ''}${growth}`}</strong><small>kunlik o‘sish</small></div>
+            <div class="stat"><strong>${activeDay.attemptCount}</strong><small>audio urinish</small></div>
+            <div class="stat"><strong>${activeDay.cyclesCompleted}</strong><small>to‘liq mashq</small></div>
+          </div>
+          <p class="small muted">Ballar qo‘shilmaydi. Kun bali — eng oxirgi tahlil qilingan urinish natijasi.</p>
+          ${activeDay.lastSuggestedFocus ? `<div class="card soft"><strong>AI tavsiyasi:</strong><p class="small">${escapeHtml(activeDay.lastSuggestedFocus)}</p></div>` : ''}
+        </div>` : ''}
 
         <article class="card hero-card stack-lg">
           <div class="row-between wrap">
@@ -270,7 +308,7 @@ const Screens = {
     const diff = attempt2.evaluation.totalScore - attempt1.evaluation.totalScore;
     return `
       <section class="screen">
-        <div class="stack"><span class="eyebrow">${lesson.day}-kun yakuni</span><h1>Ikki urinishni solishtiring</h1><p class="muted">Ball yo‘l ko‘rsatadi; asosiy dalil — yozuvdagi eshitiladigan farq.</p></div>
+        <div class="stack"><span class="eyebrow">${lesson.day}-kun · mashq sikli</span><h1>Ikki urinishni solishtiring</h1><p class="muted">Ballar qo‘shilmaydi. Ikkinchi — ya’ni eng oxirgi urinish kunning joriy bali bo‘ladi.</p></div>
         <div class="compare-grid">
           <div class="attempt-card stack"><span class="eyebrow">1-urinish</span><strong>${attempt1.evaluation.totalScore}</strong><span class="small muted">${attempt1.evaluation.fillerCount} parazit · ${attempt1.evaluation.wpm} WPM</span></div>
           <div class="attempt-card stack"><span class="eyebrow">2-urinish</span><strong>${attempt2.evaluation.totalScore}</strong><span class="small muted">${attempt2.evaluation.fillerCount} parazit · ${attempt2.evaluation.wpm} WPM</span></div>
@@ -279,21 +317,28 @@ const Screens = {
         <form class="stack-lg" onsubmit="App.completeCurrentDay(event)">
           <fieldset><legend>Nima o‘zgardi?</legend><div class="choice-grid"><label class="choice"><input type="radio" name="comparison" value="yaxshilandi" checked><span>Yaxshilandi</span></label><label class="choice"><input type="radio" name="comparison" value="bir_xil"><span>Bir xil</span></label><label class="choice"><input type="radio" name="comparison" value="qiyinlashdi"><span>Qiyinlashdi</span></label></div></fieldset>
           <div class="field"><label for="reflection">Bugungi bitta yutug‘ingiz</label><textarea id="reflection" name="reflection" maxlength="800" placeholder="Masalan: Ikkinchi urinishda xulosani aniq tugatdim"></textarea></div>
-          <button class="button" type="submit">Kunni yakunlash ✓</button>
+          <button class="button" type="submit">Mashq siklini saqlash ✓</button>
         </form>
       </section>`;
   },
 
-  completed(completion, nextLesson) {
+  completed(completion, progress) {
+    const activeDay = progress.activeDay;
+    const sameDayContinues = !completion.dayFinalized && activeDay?.day === completion.day;
     return `
       <section class="screen">
         <div class="card primary hero-card stack-lg" style="text-align:center">
           <span style="font-size:52px" aria-hidden="true">✓</span>
-          <span class="eyebrow" style="color:#99f6e4">${completion.day}-kun bajarildi</span>
-          <h1>${completion.secondScore}/100</h1>
-          <p style="color:#d7fffa">Ikkinchi urinish farqi: ${completion.improvement > 0 ? '+' : ''}${completion.improvement} ball</p>
+          <span class="eyebrow" style="color:#99f6e4">${completion.day}-kun · ${completion.sessionNumber || 1}-mashq tugadi</span>
+          <h1>${completion.dailyLatestScore ?? completion.secondScore}/100</h1>
+          <p style="color:#d7fffa">Kun boshidan o‘sish: ${(completion.dailyGrowth ?? completion.improvement) > 0 ? '+' : ''}${completion.dailyGrowth ?? completion.improvement} ball</p>
         </div>
-        ${nextLesson ? `<div class="card stack"><span class="eyebrow">Keyingi mashq</span><h2>${nextLesson.day}-kun: ${escapeHtml(nextLesson.title)}</h2><p class="muted">${escapeHtml(nextLesson.skill)}</p></div>` : `<div class="card stack"><h2>30 kun yakunlandi!</h2><p class="muted">1-kun va 30-kun natijasini progress sahifasida solishtiring.</p></div>`}
+        ${sameDayContinues
+          ? `<div class="card stack"><span class="eyebrow">Kun hali davom etmoqda</span><h2>Keyingi kungacha ${remainingTimeLabel(activeDay.unlocksAt)}</h2><p class="muted">Shu darsni yana takrorlang. Yangi urinish bali oldingilariga qo‘shilmaydi — oxirgi natija kun bali bo‘ladi.</p>${activeDay.lastSuggestedFocus ? `<div class="card soft"><strong>Keyingi AI fokusi</strong><p class="small">${escapeHtml(activeDay.lastSuggestedFocus)}</p></div>` : ''}</div>`
+          : completion.programCompleted
+            ? `<div class="card stack"><h2>30 kun yakunlandi!</h2><p class="muted">1-kun va 30-kun natijasini progress sahifasida solishtiring.</p></div>`
+            : `<div class="card stack"><span class="eyebrow">Yangi kun ochildi</span><h2>${completion.nextDay}-kunga o‘tishingiz mumkin</h2><p class="muted">Oldingi kun 24 soat va kamida bitta to‘liq mashqdan so‘ng yakunlandi.</p></div>`}
+        ${sameDayContinues ? `<button class="button" type="button" onclick="App.repeatCurrentDay(${completion.day})">Shu kunni yana mashq qilish →</button>` : ''}
         <button class="button" type="button" onclick="App.navigate('home',{},false)">Bosh sahifaga qaytish</button>
       </section>`;
   },
@@ -319,15 +364,17 @@ const Screens = {
 
   progress(user, pillars) {
     const progress = user.progress;
+    const activeDay = progress.activeDay;
     const skillScores = progress.skillScores || {};
     const snapshots = progress.snapshots || [];
     return `
       <section class="screen">
         <div class="stack"><span class="eyebrow">Shaxsiy natija</span><h1>O‘zingiz bilan solishtiring</h1><p class="muted">Asosiy trend 1, 7, 15, 21 va 30-kun nazorat yozuvlari orqali ko‘rinadi.</p></div>
         <div class="stat-grid"><div class="stat"><strong>${progress.completedDays.length}</strong><small>bajarilgan kun</small></div><div class="stat"><strong>${progress.longestStreak}</strong><small>eng uzun streak</small></div><div class="stat"><strong>${progress.latestScore ?? '—'}</strong><small>so‘nggi ball</small></div><div class="stat"><strong>${progress.baselineScore ?? '—'}</strong><small>1-kun bazasi</small></div></div>
+        ${activeDay && !activeDay.completed ? `<div class="card stack"><div class="row-between"><h2>${activeDay.day}-kun ichidagi o‘sish</h2><span class="pill primary">${remainingTimeLabel(activeDay.unlocksAt)}</span></div><div class="stat-grid"><div class="stat"><strong>${activeDay.firstScore ?? '—'}</strong><small>birinchi ball</small></div><div class="stat"><strong>${activeDay.latestScore ?? '—'}</strong><small>oxirgi ball</small></div><div class="stat"><strong>${activeDay.growth == null ? '—' : `${activeDay.growth > 0 ? '+' : ''}${activeDay.growth}`}</strong><small>o‘sish</small></div><div class="stat"><strong>${activeDay.attemptCount}</strong><small>urinish</small></div></div></div>` : ''}
         <div class="card stack"><h2>Nazorat kunlari</h2>${snapshots.length ? `<div class="timeline">${snapshots.map(item => `<div class="timeline-column"><strong>${item.score}</strong><div class="timeline-bar" style="height:${Math.max(4, item.score)}%"></div><small>${item.day}-kun</small></div>`).join('')}</div>` : '<p class="muted">1-kun tugagach birinchi nazorat natijasi chiqadi.</p>'}</div>
         <div class="card stack"><h2>Besh yo‘nalish</h2><div class="bar-chart">${pillars.map(pillar => { const score = skillScores[pillar.id]; return `<div class="bar-item"><span>${escapeHtml(pillar.title)}</span><div class="score-bar"><span style="width:${score == null ? 0 : score * 5}%"></span></div><strong>${score == null ? '—' : `${score}/20`}</strong></div>`; }).join('')}</div></div>
-        <div class="card stack"><h2>So‘nggi mashqlar</h2>${user.completions.length ? user.completions.slice(-5).reverse().map(item => `<div class="row-between"><span>${item.day}-kun</span><strong>${item.secondScore}/100 <span class="small muted">(${item.improvement > 0 ? '+' : ''}${item.improvement})</span></strong></div>`).join('') : '<p class="muted">Hali yakunlangan mashq yo‘q.</p>'}</div>
+        <div class="card stack"><h2>So‘nggi mashqlar</h2>${user.completions.length ? user.completions.slice(-5).reverse().map(item => `<div class="row-between"><span>${item.day}-kun · ${item.sessionNumber || 1}-mashq</span><strong>${item.dailyLatestScore ?? item.secondScore}/100 <span class="small muted">(${(item.dailyGrowth ?? item.improvement) > 0 ? '+' : ''}${item.dailyGrowth ?? item.improvement})</span></strong></div>`).join('') : '<p class="muted">Hali yakunlangan mashq yo‘q.</p>'}</div>
       </section>`;
   },
 

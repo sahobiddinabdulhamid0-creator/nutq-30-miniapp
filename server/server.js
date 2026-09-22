@@ -123,7 +123,7 @@ function safeJson(value, fallback = {}) {
 }
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'nutq-30', version: '2.1.1', time: new Date().toISOString() });
+  res.json({ ok: true, service: 'nutq-30', version: '2.2.0', time: new Date().toISOString() });
 });
 
 app.post('/api/telegram/webhook', async (req, res, next) => {
@@ -144,7 +144,7 @@ app.use('/api', authenticate);
 
 app.get('/api/session', async (req, res, next) => {
   try {
-    const user = await store.getOrCreate(req.authUser);
+    const user = await store.getOrCreate(req.authUser, { advanceDay: true });
     res.json({ user: publicUser(user), devMode: !req.get('x-telegram-init-data') });
   } catch (error) {
     next(error);
@@ -236,7 +236,8 @@ app.post(
         mimeType: req.file.mimetype,
         lesson,
         attemptNumber,
-        durationSeconds
+        durationSeconds,
+        selectedFocus
       });
       const attempt = await store.addAttempt(user.id, {
         day,

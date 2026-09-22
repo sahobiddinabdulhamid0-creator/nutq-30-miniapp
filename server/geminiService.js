@@ -199,7 +199,7 @@ function validateEvaluation(data, lesson, durationSeconds) {
   };
 }
 
-function buildAnalysisPrompt(lesson, attemptNumber) {
+function buildAnalysisPrompt(lesson, attemptNumber, selectedFocus = '') {
   const metrics = lesson.activeMetrics
     .map(metric => `- ${metric.id}: ${metric.title} (0–10)`)
     .join('\n');
@@ -212,6 +212,7 @@ KUN: ${lesson.day}. ${lesson.title}
 URINISH: ${attemptNumber}
 TOPSHIRIQ: ${lesson.prompt}
 BUGUNGI TEKSHIRUV: ${lesson.check}
+${selectedFocus ? `FOYDALANUVCHI TUZATAYOTGAN OLDINGI XATO/FOKUS: ${selectedFocus}` : ''}
 
 Faqat quyidagi mezonlarni baholang:
 ${metrics}
@@ -228,7 +229,8 @@ Qoidalar:
 3. Ikki soniyadan uzun noaniq pauza va qayta boshlashlarni sanang.
 4. Har bir ball uchun transkripsiyadan yoki eshitilgan holatdan aniq dalil yozing.
 5. Ikki kuchli nuqta, ikki aniq yaxshilash nuqtasi va keyingi urinish uchun faqat bitta fokus bering.
-6. Faqat JSON qaytaring. Hech qanday Markdown yozmang.
+${selectedFocus ? '6. Tanlangan fokus oldingi urinishga nisbatan tuzatilgan-tuzatilmaganini dalil bilan ayting.' : ''}
+${selectedFocus ? '7' : '6'}. Faqat JSON qaytaring. Hech qanday Markdown yozmang.
 
 JSON shakli:
 {
@@ -248,8 +250,8 @@ JSON shakli:
 }`.trim();
 }
 
-function buildTranscriptAnalysisPrompt(lesson, attemptNumber, transcript, durationSeconds) {
-  return `${buildAnalysisPrompt(lesson, attemptNumber)}
+function buildTranscriptAnalysisPrompt(lesson, attemptNumber, transcript, durationSeconds, selectedFocus = '') {
+  return `${buildAnalysisPrompt(lesson, attemptNumber, selectedFocus)}
 
 MAXSUS TRANSKRIPSIYA MODELI QAYTARGAN MATN:
 ${transcript}
@@ -319,7 +321,7 @@ async function transcribeAudio(audioBuffer, mimeType) {
   }, FALLBACK_ANALYSIS_TIMEOUT_MS, TRANSCRIBE_MODEL);
 }
 
-async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, attemptNumber = 1, durationSeconds }) {
+async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, attemptNumber = 1, durationSeconds, selectedFocus = '' }) {
   requireApiKey();
   if (!audioBuffer?.length) throw new Error('Audio fayl bo‘sh.');
   if (!lesson) throw new Error('Kun darsi topilmadi.');
@@ -339,7 +341,7 @@ async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, att
     contents: [{
       role: 'user',
       parts: [
-        { text: buildAnalysisPrompt(lesson, attemptNumber) },
+        { text: buildAnalysisPrompt(lesson, attemptNumber, selectedFocus) },
         { inlineData: { mimeType, data: audioBuffer.toString('base64') } }
       ]
     }],
@@ -376,7 +378,7 @@ async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, att
       const textPayload = {
         contents: [{
           role: 'user',
-          parts: [{ text: buildTranscriptAnalysisPrompt(lesson, attemptNumber, transcript, durationSeconds) }]
+          parts: [{ text: buildTranscriptAnalysisPrompt(lesson, attemptNumber, transcript, durationSeconds, selectedFocus) }]
         }],
         generationConfig: {
           responseMimeType: 'application/json',

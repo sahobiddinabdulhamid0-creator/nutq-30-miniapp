@@ -17,6 +17,8 @@ Har bir kun:
 9. ikki urinishni solishtirish;
 10. progressni saqlash.
 
+Har bir kun alohida 24 soatlik mashq davri hisoblanadi. Shu vaqt ichida mashq siklini istalgancha takrorlash mumkin; kunlik ball yig‘indi emas, eng oxirgi tahlil qilingan urinish balidir. Keyingi kun faqat 24 soat o‘tib va kamida bitta to‘liq ikki-urinish sikli bajarilgach ochiladi.
+
 Audio fayllar serverda saqlanmaydi. Ular brauzerning IndexedDB bazasida, qurilmada qoladi. Serverda transkripsiya, ball, tavsiya va progress saqlanadi. Productionda bu JSON ma’lumot Cloudflare R2 private bucketida turadi; lokal rejimda fayl ishlatiladi.
 
 ## Lokal ishga tushirish

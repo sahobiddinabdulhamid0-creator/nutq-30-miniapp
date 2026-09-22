@@ -3,8 +3,29 @@ const path = require('path');
 const crypto = require('crypto');
 const { GetObjectCommand, PutObjectCommand, S3Client } = require('@aws-sdk/client-s3');
 
+const DAY_DURATION_MS = 24 * 60 * 60 * 1000;
+
 function isoNow() {
   return new Date().toISOString();
+}
+
+function createActiveDay(day, startedAt = isoNow()) {
+  const startedTime = new Date(startedAt).getTime();
+  const safeStartedAt = Number.isFinite(startedTime) ? new Date(startedTime).toISOString() : isoNow();
+  return {
+    day,
+    startedAt: safeStartedAt,
+    unlocksAt: new Date(new Date(safeStartedAt).getTime() + DAY_DURATION_MS).toISOString(),
+    firstScore: null,
+    latestScore: null,
+    bestScore: null,
+    growth: null,
+    attemptCount: 0,
+    cyclesCompleted: 0,
+    lastAttemptAt: null,
+    lastSuggestedFocus: '',
+    completed: false
+  };
 }
 
 function createDefaultUser(authUser) {
@@ -35,7 +56,10 @@ function createDefaultUser(authUser) {
       latestScore: null,
       baselineScore: null,
       skillScores: null,
-      snapshots: []
+      snapshots: [],
+      activeDay: null,
+      programCompletedAt: null,
+      dayModeVersion: 2
     },
     attempts: [],
     completions: [],
@@ -101,6 +125,167 @@ class UserStore {
     }
   }
 
+  _migrateLegacyDailyProgress(user) {
+    const progress = user.progress;
+    if (!user.onboarding?.completed || progress?.dayModeVersion === 2) return false;
+
+    const attempts = [...(user.attempts || [])]
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const completions = [...(user.completions || [])]
+      .sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+    let activeDayNumber = 1;
+    let activeStartedAt = user.onboarding.completedAt || user.createdAt || isoNow();
+    const validCompletedDays = [];
+
+    while (activeDayNumber <= 30) {
+      const earliestEligibleCompletion = completions.find(item => (
+        item.day === activeDayNumber
+        && new Date(item.completedAt).getTime() >= new Date(activeStartedAt).getTime() + DAY_DURATION_MS
+      ));
+      if (!earliestEligibleCompletion) break;
+      validCompletedDays.push(activeDayNumber);
+      if (activeDayNumber === 30) break;
+      activeDayNumber += 1;
+      activeStartedAt = earliestEligibleCompletion.completedAt;
+    }
+
+    const activeAttempts = attempts.filter(item => item.day === activeDayNumber);
+    const activeCompletions = completions.filter(item => item.day === activeDayNumber);
+    const firstAttempt = activeAttempts[0];
+    const latestAttempt = activeAttempts.at(-1);
+    const activeDay = createActiveDay(activeDayNumber, activeStartedAt);
+    if (firstAttempt?.evaluation) {
+      activeDay.firstScore = firstAttempt.evaluation.totalScore;
+      activeDay.latestScore = latestAttempt.evaluation.totalScore;
+      activeDay.bestScore = Math.max(...activeAttempts.map(item => item.evaluation.totalScore));
+      activeDay.growth = activeDay.latestScore - activeDay.firstScore;
+      activeDay.attemptCount = activeAttempts.length;
+      activeDay.cyclesCompleted = activeCompletions.length;
+      activeDay.lastAttemptAt = latestAttempt.createdAt;
+      activeDay.lastSuggestedFocus = latestAttempt.evaluation.suggestedFocus || '';
+    }
+
+    const futureAttempts = attempts.filter(item => item.day > activeDayNumber);
+    const futureCompletions = completions.filter(item => item.day > activeDayNumber);
+    if (futureAttempts.length || futureCompletions.length) {
+      user.legacyArchive = {
+        attempts: [...(user.legacyArchive?.attempts || []), ...futureAttempts],
+        completions: [...(user.legacyArchive?.completions || []), ...futureCompletions],
+        migratedAt: isoNow(),
+        reason: '24-hour-day-mode'
+      };
+    }
+
+    user.attempts = attempts.filter(item => item.day <= activeDayNumber);
+    user.completions = completions.filter(item => item.day <= activeDayNumber);
+    progress.currentDay = activeDayNumber;
+    progress.completedDays = validCompletedDays;
+    progress.activeDay = activeDay;
+    progress.latestScore = activeDay.latestScore;
+    progress.baselineScore = attempts.find(item => item.day === 1)?.evaluation?.totalScore
+      ?? progress.baselineScore
+      ?? null;
+    if (latestAttempt?.evaluation?.pillarScores) {
+      progress.skillScores = { ...latestAttempt.evaluation.pillarScores };
+    }
+    progress.snapshots = (progress.snapshots || []).filter(item => validCompletedDays.includes(item.day));
+    progress.programCompletedAt = validCompletedDays.includes(30) ? isoNow() : null;
+    progress.dayModeVersion = 2;
+    return true;
+  }
+
+  _ensureProgressShape(user) {
+    let changed = false;
+    if (!Array.isArray(user.attempts)) { user.attempts = []; changed = true; }
+    if (!Array.isArray(user.completions)) { user.completions = []; changed = true; }
+    if (!user.progress || typeof user.progress !== 'object') {
+      user.progress = createDefaultUser(user).progress;
+      changed = true;
+    }
+    const progress = user.progress;
+    changed = this._migrateLegacyDailyProgress(user) || changed;
+
+    if (!Array.isArray(progress.completedDays)) { progress.completedDays = []; changed = true; }
+    if (!Array.isArray(progress.snapshots)) { progress.snapshots = []; changed = true; }
+    if (!Object.prototype.hasOwnProperty.call(progress, 'programCompletedAt')) {
+      progress.programCompletedAt = null;
+      changed = true;
+    }
+    if (!Object.prototype.hasOwnProperty.call(progress, 'dayModeVersion')) {
+      progress.dayModeVersion = 2;
+      changed = true;
+    }
+
+    if (user.onboarding?.completed && (!progress.activeDay || progress.activeDay.day !== progress.currentDay)) {
+      const previousCompletion = [...(user.completions || [])]
+        .reverse()
+        .find(item => item.day === progress.currentDay - 1);
+      const startedAt = previousCompletion?.completedAt || user.onboarding.completedAt || isoNow();
+      progress.activeDay = createActiveDay(progress.currentDay || 1, startedAt);
+      changed = true;
+    }
+
+    if (progress.activeDay) {
+      const defaults = createActiveDay(progress.activeDay.day || progress.currentDay || 1, progress.activeDay.startedAt);
+      for (const [key, value] of Object.entries(defaults)) {
+        if (!Object.prototype.hasOwnProperty.call(progress.activeDay, key)) {
+          progress.activeDay[key] = value;
+          changed = true;
+        }
+      }
+    }
+    return changed;
+  }
+
+  _updateStreak(user, completedAt = new Date()) {
+    const today = localDateKey(completedAt);
+    const yesterday = localDateKey(new Date(completedAt.getTime() - DAY_DURATION_MS));
+    if (user.progress.lastCompletedDate === today) return;
+    if (user.progress.lastCompletedDate === yesterday) user.progress.streakDays += 1;
+    else user.progress.streakDays = 1;
+    user.progress.lastCompletedDate = today;
+    user.progress.longestStreak = Math.max(user.progress.longestStreak, user.progress.streakDays);
+  }
+
+  _finalizeActiveDayIfReady(user, now = new Date()) {
+    const activeDay = user.progress.activeDay;
+    if (!activeDay || activeDay.completed || activeDay.cyclesCompleted < 1) {
+      return { finalized: false, nextDay: null, programCompleted: false };
+    }
+    if (now.getTime() < new Date(activeDay.unlocksAt).getTime()) {
+      return { finalized: false, nextDay: null, programCompleted: false };
+    }
+
+    const finishedDay = activeDay.day;
+    activeDay.completed = true;
+    if (!user.progress.completedDays.includes(finishedDay)) {
+      user.progress.completedDays.push(finishedDay);
+      user.progress.completedDays.sort((a, b) => a - b);
+    }
+    this._updateStreak(user, now);
+
+    if ([1, 7, 15, 21, 30].includes(finishedDay) && activeDay.latestScore != null) {
+      user.progress.snapshots = user.progress.snapshots.filter(item => item.day !== finishedDay);
+      user.progress.snapshots.push({
+        day: finishedDay,
+        score: activeDay.latestScore,
+        pillarScores: user.progress.skillScores || {},
+        completedAt: now.toISOString()
+      });
+      user.progress.snapshots.sort((a, b) => a.day - b.day);
+    }
+
+    if (finishedDay >= 30) {
+      user.progress.programCompletedAt = now.toISOString();
+      return { finalized: true, nextDay: null, programCompleted: true };
+    }
+
+    const nextDay = finishedDay + 1;
+    user.progress.currentDay = nextDay;
+    user.progress.activeDay = createActiveDay(nextDay, now.toISOString());
+    return { finalized: true, nextDay, programCompleted: false };
+  }
+
   async _loadRemote() {
     try {
       const response = await this.r2.client.send(new GetObjectCommand({
@@ -138,12 +323,13 @@ class UserStore {
     return this._saveQueue;
   }
 
-  async getOrCreate(authUser) {
+  async getOrCreate(authUser, options = {}) {
     await this._ready;
     const id = String(authUser.id);
+    let changed = false;
     if (!this.users[id]) {
       this.users[id] = createDefaultUser(authUser);
-      await this._persist();
+      changed = true;
     } else {
       this.users[id].profile = {
         ...this.users[id].profile,
@@ -154,7 +340,17 @@ class UserStore {
         languageCode: authUser.languageCode || 'uz'
       };
     }
-    return this.users[id];
+    const user = this.users[id];
+    changed = this._ensureProgressShape(user) || changed;
+    if (options.advanceDay && user.onboarding?.completed) {
+      const advancement = this._finalizeActiveDayIfReady(user);
+      changed = advancement.finalized || changed;
+    }
+    if (changed) {
+      user.updatedAt = isoNow();
+      await this._persist();
+    }
+    return user;
   }
 
   getById(userId) {
@@ -165,13 +361,14 @@ class UserStore {
     await this._ready;
     const user = this.getById(userId);
     if (!user) throw new Error('Foydalanuvchi topilmadi.');
+    const completedAt = isoNow();
     user.onboarding = {
       completed: true,
       goal: input.goal,
       level: input.level,
       dailyMinutes: input.dailyMinutes,
       aiConsent: Boolean(input.aiConsent),
-      completedAt: isoNow()
+      completedAt
     };
     user.progress = {
       currentDay: 1,
@@ -182,7 +379,10 @@ class UserStore {
       latestScore: null,
       baselineScore: null,
       skillScores: null,
-      snapshots: []
+      snapshots: [],
+      activeDay: createActiveDay(1, completedAt),
+      programCompletedAt: null,
+      dayModeVersion: 2
     };
     user.attempts = [];
     user.completions = [];
@@ -207,7 +407,27 @@ class UserStore {
       createdAt: isoNow()
     };
     user.attempts.push(attempt);
-    if (user.attempts.length > 120) user.attempts = user.attempts.slice(-120);
+    if (user.attempts.length > 300) user.attempts = user.attempts.slice(-300);
+
+    const activeDay = user.progress.activeDay;
+    if (input.day === user.progress.currentDay && activeDay?.day === input.day && !activeDay.completed) {
+      const score = input.evaluation.totalScore;
+      if (activeDay.firstScore == null) activeDay.firstScore = score;
+      activeDay.latestScore = score;
+      activeDay.bestScore = activeDay.bestScore == null ? score : Math.max(activeDay.bestScore, score);
+      activeDay.growth = score - activeDay.firstScore;
+      activeDay.attemptCount += 1;
+      activeDay.lastAttemptAt = attempt.createdAt;
+      activeDay.lastSuggestedFocus = input.evaluation.suggestedFocus || activeDay.lastSuggestedFocus || '';
+      user.progress.latestScore = score;
+      user.progress.skillScores = {
+        ...(user.progress.skillScores || {}),
+        ...input.evaluation.pillarScores
+      };
+      if (input.day === 1 && user.progress.baselineScore == null) {
+        user.progress.baselineScore = activeDay.firstScore;
+      }
+    }
     user.updatedAt = isoNow();
     await this._persist();
     return attempt;
@@ -234,9 +454,19 @@ class UserStore {
       throw error;
     }
 
+    const existingCompletion = user.completions.find(item => (
+      item.attempt1Id === attempt1.id && item.attempt2Id === attempt2.id
+    ));
+    if (existingCompletion) {
+      return { user, completion: existingCompletion };
+    }
+
+    const activeDay = user.progress.activeDay;
+    const dayCompletions = user.completions.filter(item => item.day === input.day);
     const completion = {
       id: crypto.randomUUID(),
       day: input.day,
+      sessionNumber: dayCompletions.length + 1,
       attempt1Id: attempt1.id,
       attempt2Id: attempt2.id,
       comparison: input.comparison,
@@ -245,50 +475,31 @@ class UserStore {
       firstScore: attempt1.evaluation.totalScore,
       secondScore: attempt2.evaluation.totalScore,
       improvement: attempt2.evaluation.totalScore - attempt1.evaluation.totalScore,
+      dailyFirstScore: activeDay?.day === input.day ? activeDay.firstScore : attempt1.evaluation.totalScore,
+      dailyLatestScore: attempt2.evaluation.totalScore,
+      dailyGrowth: activeDay?.day === input.day && activeDay.firstScore != null
+        ? attempt2.evaluation.totalScore - activeDay.firstScore
+        : attempt2.evaluation.totalScore - attempt1.evaluation.totalScore,
       completedAt: isoNow()
     };
 
-    user.completions = user.completions.filter(item => item.day !== input.day);
     user.completions.push(completion);
-    user.completions.sort((a, b) => a.day - b.day);
+    user.completions.sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
 
-    if (!user.progress.completedDays.includes(input.day)) {
-      user.progress.completedDays.push(input.day);
-      user.progress.completedDays.sort((a, b) => a - b);
-    }
-    if (input.day === user.progress.currentDay && input.day < 30) {
-      user.progress.currentDay = input.day + 1;
+    if (activeDay?.day === input.day && !activeDay.completed) {
+      activeDay.cyclesCompleted += 1;
+      activeDay.latestScore = completion.secondScore;
+      activeDay.bestScore = activeDay.bestScore == null
+        ? completion.secondScore
+        : Math.max(activeDay.bestScore, completion.secondScore);
+      activeDay.growth = activeDay.firstScore == null ? 0 : completion.secondScore - activeDay.firstScore;
+      activeDay.lastSuggestedFocus = attempt2.evaluation.suggestedFocus || activeDay.lastSuggestedFocus || '';
     }
 
-    const today = localDateKey();
-    const yesterday = localDateKey(new Date(Date.now() - 86400000));
-    if (user.progress.lastCompletedDate === today) {
-      // Bir kunda qayta bajarish streakni oshirmaydi.
-    } else if (user.progress.lastCompletedDate === yesterday) {
-      user.progress.streakDays += 1;
-    } else {
-      user.progress.streakDays = 1;
-    }
-    user.progress.lastCompletedDate = today;
-    user.progress.longestStreak = Math.max(user.progress.longestStreak, user.progress.streakDays);
-    user.progress.latestScore = completion.secondScore;
-    user.progress.skillScores = {
-      ...(user.progress.skillScores || {}),
-      ...attempt2.evaluation.pillarScores
-    };
-    if (input.day === 1 && user.progress.baselineScore == null) {
-      user.progress.baselineScore = completion.secondScore;
-    }
-    if ([1, 7, 15, 21, 30].includes(input.day)) {
-      user.progress.snapshots = user.progress.snapshots.filter(item => item.day !== input.day);
-      user.progress.snapshots.push({
-        day: input.day,
-        score: completion.secondScore,
-        pillarScores: attempt2.evaluation.pillarScores,
-        completedAt: completion.completedAt
-      });
-      user.progress.snapshots.sort((a, b) => a.day - b.day);
-    }
+    const advancement = this._finalizeActiveDayIfReady(user);
+    completion.dayFinalized = advancement.finalized;
+    completion.nextDay = advancement.nextDay;
+    completion.programCompleted = advancement.programCompleted;
 
     user.updatedAt = isoNow();
     await this._persist();
