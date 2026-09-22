@@ -130,7 +130,7 @@ const Screens = {
     const ctaAction = programComplete
       ? "App.navigate('progress')"
       : resume ? `App.resumeDay(${day})` : `App.navigate('lesson',{day:${day}})`;
-    const modelLabel = capabilities?.configured ? `Gemini 2.5 faol` : 'API sozlanmagan';
+    const modelLabel = capabilities?.configured ? 'Gemini 3.8 faol' : 'API sozlanmagan';
     const growth = activeDay?.growth;
     const streak = progress.streakDays || Math.max(completed, 1);
     const daysToMidpoint = Math.max(0, 15 - completed);

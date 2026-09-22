@@ -13,6 +13,7 @@ const { analyzeSpeech, getCapabilities, synthesizeLesson } = require('./geminiSe
 const { CURRICULUM, METRICS, PILLARS, STAGES, getDay } = require('./learningContent');
 const { createLiveTranscriptionGateway } = require('./liveTranscriptionGateway');
 const { UserStore, publicUser } = require('./userStore');
+const pkg = require('../package.json');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -56,7 +57,7 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self' https://cdn.tailwindcss.com; frame-ancestors https://web.telegram.org https://*.telegram.org"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self' ws: wss: https://cdn.tailwindcss.com; frame-ancestors https://web.telegram.org https://*.telegram.org"
   );
   req.requestId = crypto.randomUUID();
   res.setHeader('X-Request-Id', req.requestId);
@@ -124,7 +125,7 @@ function safeJson(value, fallback = {}) {
 }
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'nutq-30', version: '2.2.1', time: new Date().toISOString() });
+  res.json({ ok: true, service: 'nutq-30', version: pkg.version, time: new Date().toISOString() });
 });
 
 app.post('/api/telegram/webhook', async (req, res, next) => {
