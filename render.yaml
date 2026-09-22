@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: nutq-30-miniapp
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: nutq30-data
+      mountPath: /var/data/nutq30
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data/nutq30
+      - key: ALLOW_DEV_AUTH
+        value: "false"
+      - key: GEMINI_ANALYSIS_MODEL
+        value: gemini-3.8-flash
+      - key: GEMINI_ANALYSIS_FALLBACK_MODELS
+        value: gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash
+      - key: GEMINI_TTS_MODEL
+        value: gemini-3.1-flash-tts-preview
+      - key: GEMINI_TTS_VOICE
+        value: Kore
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: ALLOWED_TELEGRAM_USER_IDS
+        sync: false
+      - key: MINI_APP_URL
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        generateValue: true

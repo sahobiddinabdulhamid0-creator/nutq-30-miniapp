@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+server/data/users.json
+server/data/user_progress.json
+server/data/*.tmp
+server/data/tts-cache/
+qa/
+stitch_nutq_30_telegram_app/
+stitch_nutq_30_telegram_app.zip
+server/curriculum.js
+public/js/data.js
+npm-debug.log*
+.DS_Store
