@@ -2,20 +2,14 @@ services:
   - type: web
     name: nutq-30-miniapp
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm ci
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true
-    disk:
-      name: nutq30-data
-      mountPath: /var/data/nutq30
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATA_DIR
-        value: /var/data/nutq30
       - key: ALLOW_DEV_AUTH
         value: "false"
       - key: GEMINI_ANALYSIS_MODEL
@@ -38,3 +32,13 @@ services:
         sync: false
       - key: TELEGRAM_WEBHOOK_SECRET
         generateValue: true
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET
+        value: nutq-30-data
+      - key: R2_OBJECT_KEY
+        value: production/users.json

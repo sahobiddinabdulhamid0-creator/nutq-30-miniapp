@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { GetObjectCommand, PutObjectCommand, S3Client } = require('@aws-sdk/client-s3');
 
 function isoNow() {
   return new Date().toISOString();
@@ -52,17 +53,43 @@ function localDateKey(date = new Date()) {
   }).format(date);
 }
 
+function createR2Store(env = process.env) {
+  const endpoint = env.R2_ENDPOINT;
+  const accessKeyId = env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = env.R2_SECRET_ACCESS_KEY;
+  const bucket = env.R2_BUCKET;
+  const supplied = [endpoint, accessKeyId, secretAccessKey, bucket].filter(Boolean).length;
+  if (supplied === 0) return null;
+  if (supplied !== 4) throw new Error('R2 sozlamalari to‘liq emas. Endpoint, access key, secret va bucket kerak.');
+
+  return {
+    client: new S3Client({
+      region: 'auto',
+      endpoint,
+      credentials: { accessKeyId, secretAccessKey }
+    }),
+    bucket,
+    key: env.R2_OBJECT_KEY || 'production/users.json'
+  };
+}
+
 class UserStore {
   constructor(options = {}) {
     const baseDir = options.dataDir || process.env.DATA_DIR || path.join(__dirname, 'data');
     this.filePath = options.filePath || path.join(baseDir, 'users.json');
+    this.r2 = options.r2 === undefined ? createR2Store() : options.r2;
     this.users = {};
     this._saveQueue = Promise.resolve();
-    fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
-    this._load();
+    if (this.r2) {
+      this._ready = this._loadRemote();
+    } else {
+      fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+      this._loadLocal();
+      this._ready = Promise.resolve();
+    }
   }
 
-  _load() {
+  _loadLocal() {
     try {
       if (fs.existsSync(this.filePath)) {
         const parsed = JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
@@ -74,10 +101,37 @@ class UserStore {
     }
   }
 
+  async _loadRemote() {
+    try {
+      const response = await this.r2.client.send(new GetObjectCommand({
+        Bucket: this.r2.bucket,
+        Key: this.r2.key
+      }));
+      const text = await response.Body.transformToString('utf-8');
+      const parsed = JSON.parse(text);
+      this.users = parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (error) {
+      if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
+        this.users = {};
+        return;
+      }
+      throw new Error(`R2 foydalanuvchi bazasini o‘qib bo‘lmadi: ${error.message}`);
+    }
+  }
+
   async _persist() {
-    const payload = JSON.stringify(this.users, null, 2);
-    const tempPath = `${this.filePath}.${process.pid}.tmp`;
     this._saveQueue = this._saveQueue.then(async () => {
+      const payload = JSON.stringify(this.users, null, 2);
+      if (this.r2) {
+        await this.r2.client.send(new PutObjectCommand({
+          Bucket: this.r2.bucket,
+          Key: this.r2.key,
+          Body: payload,
+          ContentType: 'application/json'
+        }));
+        return;
+      }
+      const tempPath = `${this.filePath}.${process.pid}.tmp`;
       await fs.promises.writeFile(tempPath, payload, 'utf8');
       await fs.promises.rename(tempPath, this.filePath);
     });
@@ -85,6 +139,7 @@ class UserStore {
   }
 
   async getOrCreate(authUser) {
+    await this._ready;
     const id = String(authUser.id);
     if (!this.users[id]) {
       this.users[id] = createDefaultUser(authUser);
@@ -107,6 +162,7 @@ class UserStore {
   }
 
   async finishOnboarding(userId, input) {
+    await this._ready;
     const user = this.getById(userId);
     if (!user) throw new Error('Foydalanuvchi topilmadi.');
     user.onboarding = {
@@ -136,6 +192,7 @@ class UserStore {
   }
 
   async addAttempt(userId, input) {
+    await this._ready;
     const user = this.getById(userId);
     if (!user) throw new Error('Foydalanuvchi topilmadi.');
     const attempt = {
@@ -157,6 +214,7 @@ class UserStore {
   }
 
   async completeDay(userId, input) {
+    await this._ready;
     const user = this.getById(userId);
     if (!user) throw new Error('Foydalanuvchi topilmadi.');
 
@@ -238,6 +296,7 @@ class UserStore {
   }
 
   async reset(userId) {
+    await this._ready;
     const current = this.getById(userId);
     if (!current) throw new Error('Foydalanuvchi topilmadi.');
     const fresh = createDefaultUser({ id: current.id, ...current.profile });
@@ -262,6 +321,7 @@ function publicUser(user) {
 
 module.exports = {
   UserStore,
+  createR2Store,
   createDefaultUser,
   localDateKey,
   publicUser

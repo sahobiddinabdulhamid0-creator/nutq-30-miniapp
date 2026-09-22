@@ -17,7 +17,7 @@ Har bir kun:
 9. ikki urinishni solishtirish;
 10. progressni saqlash.
 
-Audio fayllar serverda saqlanmaydi. Ular brauzerning IndexedDB bazasida, qurilmada qoladi. Serverda transkripsiya, ball, tavsiya va progress saqlanadi.
+Audio fayllar serverda saqlanmaydi. Ular brauzerning IndexedDB bazasida, qurilmada qoladi. Serverda transkripsiya, ball, tavsiya va progress saqlanadi. Productionda bu JSON ma’lumot Cloudflare R2 private bucketida turadi; lokal rejimda fayl ishlatiladi.
 
 ## Lokal ishga tushirish
 
@@ -40,6 +40,7 @@ Brauzerda `http://localhost:3000` manzilini oching. Telegram tashqarisida develo
 - `PUBLIC_URL` — Render yoki Cloudflare orqali tashqi HTTPS manzil.
 - `TELEGRAM_WEBHOOK_SECRET` — tasodifiy uzun maxfiy satr.
 - `DATA_DIR` — persistent disk papkasi. Render uchun masalan `/var/data/nutq30`.
+- `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` — Render’dagi doimiy progress bazasi.
 
 Haqiqiy tokenlar `.env` faylida turadi va GitHub’ga yuborilmaydi.
 
@@ -58,13 +59,12 @@ Productionda `ALLOW_DEV_AUTH=false` bo‘lishi shart. Faqat ikki foydalanuvchi k
 
 ## Render deployment
 
-`render.yaml` boshlang‘ich konfiguratsiyani beradi. JSON baza ishlatilgani uchun Render persistent disk ulanishi zarur. Keyinchalik xohlasangiz `UserStore` PostgreSQL adapteriga almashtirilishi mumkin.
+`render.yaml` boshlang‘ich konfiguratsiyani beradi. Cloudflare R2 sozlangan bo‘lsa Render qayta deploy qilinganda ham progress saqlanadi; pullik persistent disk talab qilinmaydi.
 
 Bot token, Render service va yakuniy domen tayyor bo‘lgach:
 
 1. environment qiymatlari Render’ga yoziladi;
-2. persistent disk `/var/data/nutq30`ga ulanadi;
+2. private R2 bucket kalitlari environment qiymatlariga yoziladi;
 3. `MINI_APP_URL` va `PUBLIC_URL` belgilanadi;
 4. server ishga tushganda bot menu tugmasi va webhook avtomatik sozlanadi;
 5. BotFather’da Main Mini App manzili tasdiqlanadi.
-
