@@ -56,7 +56,7 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self' https://cdn.tailwindcss.com; frame-ancestors https://web.telegram.org https://*.telegram.org"
   );
   req.requestId = crypto.randomUUID();
   res.setHeader('X-Request-Id', req.requestId);
