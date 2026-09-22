@@ -22,10 +22,55 @@ function createActiveDay(day, startedAt = isoNow()) {
     growth: null,
     attemptCount: 0,
     cyclesCompleted: 0,
+    activeCycle: null,
     lastAttemptAt: null,
     lastSuggestedFocus: '',
     completed: false
   };
+}
+
+function attemptCreatedAt(item) {
+  const timestamp = new Date(item?.createdAt || 0).getTime();
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+// v2.2.0 dagi yozuvlarda `activeCycle` va `cycleId` hali bo‘lmagan. Ochiq
+// 1→2 juftligini qayta tiklash, yangilanish paytida foydalanuvchini boshidan
+// boshlashga majbur qilmasdan server nazoratini saqlab qoladi.
+function recoverOpenCycle(user, activeDay) {
+  if (!activeDay || activeDay.activeCycle) return false;
+
+  const completedAttemptIds = new Set(
+    (user.completions || [])
+      .filter(item => item.day === activeDay.day)
+      .flatMap(item => [item.attempt1Id, item.attempt2Id])
+      .filter(Boolean)
+  );
+  const candidates = (user.attempts || [])
+    .filter(item => item.day === activeDay.day && !completedAttemptIds.has(item.id))
+    .sort((left, right) => attemptCreatedAt(left) - attemptCreatedAt(right));
+
+  let firstAttempt = null;
+  let secondAttempt = null;
+  for (let index = candidates.length - 1; index >= 0; index -= 1) {
+    if (candidates[index].attemptNumber !== 1) continue;
+    firstAttempt = candidates[index];
+    if (candidates[index + 1]?.attemptNumber === 2) secondAttempt = candidates[index + 1];
+    break;
+  }
+  if (!firstAttempt) return false;
+
+  const cycleId = firstAttempt.cycleId || secondAttempt?.cycleId || crypto.randomUUID();
+  firstAttempt.cycleId = cycleId;
+  if (secondAttempt) secondAttempt.cycleId = cycleId;
+  activeDay.activeCycle = {
+    id: cycleId,
+    firstAttemptId: firstAttempt.id,
+    secondAttemptId: secondAttempt?.id || null,
+    startedAt: firstAttempt.createdAt || isoNow(),
+    ...(secondAttempt ? { completedAt: secondAttempt.createdAt || isoNow() } : {})
+  };
+  return true;
 }
 
 function createDefaultUser(authUser) {
@@ -164,6 +209,7 @@ class UserStore {
       activeDay.lastAttemptAt = latestAttempt.createdAt;
       activeDay.lastSuggestedFocus = latestAttempt.evaluation.suggestedFocus || '';
     }
+    recoverOpenCycle(user, activeDay);
 
     const futureAttempts = attempts.filter(item => item.day > activeDayNumber);
     const futureCompletions = completions.filter(item => item.day > activeDayNumber);
@@ -226,6 +272,7 @@ class UserStore {
     }
 
     if (progress.activeDay) {
+      const hadActiveCycle = Object.prototype.hasOwnProperty.call(progress.activeDay, 'activeCycle');
       const defaults = createActiveDay(progress.activeDay.day || progress.currentDay || 1, progress.activeDay.startedAt);
       for (const [key, value] of Object.entries(defaults)) {
         if (!Object.prototype.hasOwnProperty.call(progress.activeDay, key)) {
@@ -233,6 +280,7 @@ class UserStore {
           changed = true;
         }
       }
+      if (!hadActiveCycle && recoverOpenCycle(user, progress.activeDay)) changed = true;
     }
     return changed;
   }
@@ -391,14 +439,51 @@ class UserStore {
     return user;
   }
 
+  getNextAttemptNumber(userId, day) {
+    const user = this.getById(userId);
+    const activeDay = user?.progress?.activeDay;
+    if (Number(day) !== user?.progress?.currentDay || activeDay?.day !== Number(day) || activeDay.completed) {
+      const error = new Error('Audio mashq faqat hozirgi faol kun uchun mumkin.');
+      error.status = 403;
+      throw error;
+    }
+    if (activeDay.activeCycle?.secondAttemptId) {
+      const error = new Error('Avval ochiq mashq siklini saqlang, keyin yangi urinish boshlanadi.');
+      error.status = 409;
+      throw error;
+    }
+    return activeDay.activeCycle?.firstAttemptId ? 2 : 1;
+  }
+
+  getActiveCycleFocus(userId, day) {
+    const user = this.getById(userId);
+    const cycle = user?.progress?.activeDay?.activeCycle;
+    if (!cycle?.firstAttemptId || Number(day) !== user?.progress?.currentDay) return '';
+    return user.attempts.find(item => item.id === cycle.firstAttemptId)?.evaluation?.suggestedFocus || '';
+  }
+
   async addAttempt(userId, input) {
     await this._ready;
     const user = this.getById(userId);
     if (!user) throw new Error('Foydalanuvchi topilmadi.');
+    const activeDay = user.progress.activeDay;
+    if (input.day !== user.progress.currentDay || activeDay?.day !== input.day || activeDay.completed) {
+      const error = new Error('Audio mashq faqat hozirgi faol kun uchun mumkin.');
+      error.status = 403;
+      throw error;
+    }
+    const cycle = activeDay.activeCycle;
+    if (cycle?.secondAttemptId) {
+      const error = new Error('Avval ochiq mashq siklini saqlang, keyin yangi urinish boshlanadi.');
+      error.status = 409;
+      throw error;
+    }
+    const attemptNumber = cycle?.firstAttemptId ? 2 : 1;
     const attempt = {
       id: crypto.randomUUID(),
       day: input.day,
-      attemptNumber: input.attemptNumber,
+      attemptNumber,
+      cycleId: cycle?.id || crypto.randomUUID(),
       durationSeconds: input.durationSeconds,
       selfReview: input.selfReview || {},
       selectedFocus: input.selectedFocus || '',
@@ -409,24 +494,35 @@ class UserStore {
     user.attempts.push(attempt);
     if (user.attempts.length > 300) user.attempts = user.attempts.slice(-300);
 
-    const activeDay = user.progress.activeDay;
-    if (input.day === user.progress.currentDay && activeDay?.day === input.day && !activeDay.completed) {
-      const score = input.evaluation.totalScore;
-      if (activeDay.firstScore == null) activeDay.firstScore = score;
-      activeDay.latestScore = score;
-      activeDay.bestScore = activeDay.bestScore == null ? score : Math.max(activeDay.bestScore, score);
-      activeDay.growth = score - activeDay.firstScore;
-      activeDay.attemptCount += 1;
-      activeDay.lastAttemptAt = attempt.createdAt;
-      activeDay.lastSuggestedFocus = input.evaluation.suggestedFocus || activeDay.lastSuggestedFocus || '';
-      user.progress.latestScore = score;
-      user.progress.skillScores = {
-        ...(user.progress.skillScores || {}),
-        ...input.evaluation.pillarScores
+    if (attemptNumber === 1) {
+      activeDay.activeCycle = {
+        id: attempt.cycleId,
+        firstAttemptId: attempt.id,
+        secondAttemptId: null,
+        startedAt: attempt.createdAt
       };
-      if (input.day === 1 && user.progress.baselineScore == null) {
-        user.progress.baselineScore = activeDay.firstScore;
-      }
+    } else {
+      activeDay.activeCycle = {
+        ...cycle,
+        secondAttemptId: attempt.id,
+        completedAt: attempt.createdAt
+      };
+    }
+    const score = input.evaluation.totalScore;
+    if (activeDay.firstScore == null) activeDay.firstScore = score;
+    activeDay.latestScore = score;
+    activeDay.bestScore = activeDay.bestScore == null ? score : Math.max(activeDay.bestScore, score);
+    activeDay.growth = score - activeDay.firstScore;
+    activeDay.attemptCount += 1;
+    activeDay.lastAttemptAt = attempt.createdAt;
+    activeDay.lastSuggestedFocus = input.evaluation.suggestedFocus || activeDay.lastSuggestedFocus || '';
+    user.progress.latestScore = score;
+    user.progress.skillScores = {
+      ...(user.progress.skillScores || {}),
+      ...input.evaluation.pillarScores
+    };
+    if (input.day === 1 && user.progress.baselineScore == null) {
+      user.progress.baselineScore = activeDay.firstScore;
     }
     user.updatedAt = isoNow();
     await this._persist();
@@ -438,8 +534,22 @@ class UserStore {
     const user = this.getById(userId);
     if (!user) throw new Error('Foydalanuvchi topilmadi.');
 
+    const activeDay = user.progress.activeDay;
+    if (input.day !== user.progress.currentDay || activeDay?.day !== input.day || activeDay.completed) {
+      const error = new Error('Mashq sikli faqat hozirgi faol kun uchun saqlanadi.');
+      error.status = 403;
+      throw error;
+    }
     const attempt1 = user.attempts.find(item => item.id === input.attempt1Id);
     const attempt2 = user.attempts.find(item => item.id === input.attempt2Id);
+    const existingCompletion = attempt1 && attempt2
+      ? user.completions.find(item => item.attempt1Id === attempt1.id && item.attempt2Id === attempt2.id)
+      : null;
+    if (existingCompletion) {
+      return { user, completion: existingCompletion };
+    }
+
+    const cycle = activeDay.activeCycle;
     if (
       !attempt1
       || !attempt2
@@ -448,20 +558,17 @@ class UserStore {
       || attempt2.day !== input.day
       || attempt1.attemptNumber !== 1
       || attempt2.attemptNumber !== 2
+      || !cycle
+      || cycle.firstAttemptId !== attempt1.id
+      || cycle.secondAttemptId !== attempt2.id
+      || attempt1.cycleId !== cycle.id
+      || attempt2.cycleId !== cycle.id
     ) {
       const error = new Error('Birinchi va ikkinchi urinish to‘liq topilmadi.');
       error.status = 400;
       throw error;
     }
 
-    const existingCompletion = user.completions.find(item => (
-      item.attempt1Id === attempt1.id && item.attempt2Id === attempt2.id
-    ));
-    if (existingCompletion) {
-      return { user, completion: existingCompletion };
-    }
-
-    const activeDay = user.progress.activeDay;
     const dayCompletions = user.completions.filter(item => item.day === input.day);
     const completion = {
       id: crypto.randomUUID(),
@@ -494,6 +601,7 @@ class UserStore {
         : Math.max(activeDay.bestScore, completion.secondScore);
       activeDay.growth = activeDay.firstScore == null ? 0 : completion.secondScore - activeDay.firstScore;
       activeDay.lastSuggestedFocus = attempt2.evaluation.suggestedFocus || activeDay.lastSuggestedFocus || '';
+      activeDay.activeCycle = null;
     }
 
     const advancement = this._finalizeActiveDayIfReady(user);

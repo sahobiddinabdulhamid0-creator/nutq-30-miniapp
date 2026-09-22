@@ -18,6 +18,7 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const store = new UserStore();
 const authenticate = createAuthMiddleware();
+const activeAnalyses = new Set();
 const liveGateway = createLiveTranscriptionGateway({
   apiKey: process.env.GEMINI_API_KEY,
   model: process.env.GEMINI_LIVE_TRANSCRIBE_MODEL || 'gemini-3.5-transcribe-live'
@@ -123,7 +124,7 @@ function safeJson(value, fallback = {}) {
 }
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'nutq-30', version: '2.2.0', time: new Date().toISOString() });
+  res.json({ ok: true, service: 'nutq-30', version: '2.2.1', time: new Date().toISOString() });
 });
 
 app.post('/api/telegram/webhook', async (req, res, next) => {
@@ -198,7 +199,16 @@ app.post('/api/live/token', rateLimit({ windowMs: 60_000, max: 8, keyPrefix: 'li
 
 app.post('/api/tts/day/:day', rateLimit({ windowMs: 60_000, max: 5, keyPrefix: 'tts' }), async (req, res, next) => {
   try {
-    const lesson = getDay(req.params.day);
+    const user = await store.getOrCreate(req.authUser, { advanceDay: true });
+    if (!user.onboarding.completed) {
+      return res.status(403).json({ error: 'Avval boshlang‘ich sozlamalarni yakunlang.' });
+    }
+    const day = integer(req.params.day, 1, 30, 'Kun');
+    const canListen = day === user.progress.currentDay || user.progress.completedDays.includes(day);
+    if (!canListen) {
+      return res.status(403).json({ error: 'Bu audio dars hali ochilmagan.' });
+    }
+    const lesson = getDay(day);
     if (!lesson) return res.status(404).json({ error: 'Kun topilmadi.' });
     const wav = await synthesizeLesson(lesson);
     res.setHeader('Content-Type', 'audio/wav');
@@ -215,43 +225,57 @@ app.post(
   upload.single('audio'),
   async (req, res, next) => {
     try {
-      const user = await store.getOrCreate(req.authUser);
+      const user = await store.getOrCreate(req.authUser, { advanceDay: true });
       if (!user.onboarding.completed || !user.onboarding.aiConsent) {
         return res.status(403).json({ error: 'Avval boshlang‘ich sozlamalarni yakunlang.' });
       }
       if (!req.file?.buffer?.length) return res.status(400).json({ error: 'Audio yozuv topilmadi.' });
 
       const day = integer(req.body.day, 1, 30, 'Kun');
-      const attemptNumber = integer(req.body.attemptNumber, 1, 2, 'Urinish');
       const durationSeconds = integer(req.body.durationSeconds, 3, 600, 'Audio davomiyligi');
-      if (day > user.progress.currentDay && !user.progress.completedDays.includes(day)) {
-        return res.status(403).json({ error: 'Bu kun hali ochilmagan.' });
+      if (day !== user.progress.currentDay || user.progress.activeDay?.day !== day || user.progress.activeDay?.completed) {
+        return res.status(403).json({ error: 'Audio mashq faqat hozirgi faol kun uchun mumkin.' });
       }
 
       const lesson = getDay(day);
       const selfReview = safeJson(req.body.selfReview, {});
-      const selectedFocus = shortText(req.body.selectedFocus, 300, 'Fokus', false);
-      const evaluation = await analyzeSpeech({
-        audioBuffer: req.file.buffer,
-        mimeType: req.file.mimetype,
-        lesson,
-        attemptNumber,
-        durationSeconds,
-        selectedFocus
-      });
-      const attempt = await store.addAttempt(user.id, {
-        day,
-        attemptNumber,
-        durationSeconds,
-        selfReview: {
-          mainIdea: shortText(selfReview.mainIdea, 500, 'Asosiy fikr', false),
-          bestPart: shortText(selfReview.bestPart, 500, 'Yaxshi joy', false),
-          improvePart: shortText(selfReview.improvePart, 500, 'Yaxshilash joyi', false)
-        },
-        selectedFocus,
-        evaluation
-      });
-      res.json({ attempt, user: publicUser(user) });
+      const attemptNumber = store.getNextAttemptNumber(user.id, day);
+      const submittedFocus = shortText(req.body.selectedFocus, 300, 'Fokus', false);
+      const selectedFocus = attemptNumber === 2
+        ? submittedFocus || store.getActiveCycleFocus(user.id, day)
+        : submittedFocus;
+      if (activeAnalyses.has(user.id)) {
+        const error = new Error('Oldingi audio tahlil qilinmoqda. Natijani kuting.');
+        error.status = 409;
+        throw error;
+      }
+
+      activeAnalyses.add(user.id);
+      try {
+        const evaluation = await analyzeSpeech({
+          audioBuffer: req.file.buffer,
+          mimeType: req.file.mimetype,
+          lesson,
+          attemptNumber,
+          durationSeconds,
+          selectedFocus
+        });
+        const attempt = await store.addAttempt(user.id, {
+          day,
+          attemptNumber,
+          durationSeconds,
+          selfReview: {
+            mainIdea: shortText(selfReview.mainIdea, 500, 'Asosiy fikr', false),
+            bestPart: shortText(selfReview.bestPart, 500, 'Yaxshi joy', false),
+            improvePart: shortText(selfReview.improvePart, 500, 'Yaxshilash joyi', false)
+          },
+          selectedFocus,
+          evaluation
+        });
+        res.json({ attempt, user: publicUser(user) });
+      } finally {
+        activeAnalyses.delete(user.id);
+      }
     } catch (error) {
       next(error);
     }
@@ -260,8 +284,11 @@ app.post(
 
 app.post('/api/days/:day/complete', async (req, res, next) => {
   try {
-    const user = await store.getOrCreate(req.authUser);
+    const user = await store.getOrCreate(req.authUser, { advanceDay: true });
     const day = integer(req.params.day, 1, 30, 'Kun');
+    if (day !== user.progress.currentDay || user.progress.activeDay?.day !== day || user.progress.activeDay?.completed) {
+      return res.status(403).json({ error: 'Mashq sikli faqat hozirgi faol kun uchun saqlanadi.' });
+    }
     const comparison = shortText(req.body.comparison, 30, 'Taqqoslash');
     if (!['yaxshilandi', 'bir_xil', 'qiyinlashdi'].includes(comparison)) {
       return res.status(400).json({ error: 'Taqqoslash qiymati noto‘g‘ri.' });

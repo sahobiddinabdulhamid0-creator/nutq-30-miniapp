@@ -216,7 +216,7 @@ const Screens = {
 
         ${canPractice
           ? `<button class="button" type="button" onclick="App.navigate('prepare',{day:${lesson.day}})">Tayyorgarlikka o‘tish →</button>`
-          : '<button class="button" type="button" disabled>Bu kun hali ochilmagan</button>'}
+          : '<button class="button" type="button" disabled>Bu dars hozir faqat o‘qish uchun ochiq</button>'}
       </section>`;
   },
 
@@ -343,15 +343,18 @@ const Screens = {
       </section>`;
   },
 
-  library(curriculum) {
+  library(user, curriculum) {
+    const currentDay = user.progress.currentDay;
     return `
       <section class="screen">
         <div class="stack"><span class="eyebrow">Bilimlar</span><h1>30 ta amaliy mikro-dars</h1><p class="muted">Istalgan ochilgan darsni qayta o‘qing yoki audio ko‘rinishda tinglang.</p></div>
         <div class="field"><label for="librarySearch">Darsni qidiring</label><input id="librarySearch" type="text" placeholder="Masalan: pauza yoki intervyu" oninput="Screens.filterLessons(this.value)"></div>
-        <div id="lessonLibrary" class="day-list">${curriculum.map(lesson => `
-          <button class="day-card library-item" type="button" data-search="${escapeHtml(`${lesson.title} ${lesson.skill}`.toLowerCase())}" onclick="App.navigate('lesson',{day:${lesson.day}})">
-            <span class="day-number">${lesson.day}</span><span><strong>${escapeHtml(lesson.title)}</strong><small>${escapeHtml(lesson.skill)}</small></span><span>›</span>
-          </button>`).join('')}</div>
+        <div id="lessonLibrary" class="day-list">${curriculum.map(lesson => {
+          const unlocked = lesson.day <= currentDay;
+          return `<button class="day-card library-item ${unlocked ? '' : 'locked'}" type="button" data-search="${escapeHtml(`${lesson.title} ${lesson.skill}`.toLowerCase())}" ${unlocked ? `onclick="App.navigate('lesson',{day:${lesson.day}})"` : 'disabled'}>
+            <span class="day-number">${lesson.day}</span><span><strong>${escapeHtml(lesson.title)}</strong><small>${unlocked ? escapeHtml(lesson.skill) : 'Hali qulflangan'}</small></span><span>${unlocked ? '›' : '🔒'}</span>
+          </button>`;
+        }).join('')}</div>
       </section>`;
   },
 

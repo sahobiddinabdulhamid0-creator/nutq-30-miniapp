@@ -9,6 +9,7 @@ const App = {
   recorder: null,
   liveTranscriber: null,
   warmupInterval: null,
+  dayRefreshTimer: null,
   ttsUrl: null,
   workout: {
     day: null,
@@ -29,6 +30,7 @@ const App = {
       this.user = session.user;
       this.devMode = session.devMode;
       this.content = content;
+      this.scheduleDayRefresh();
       try {
         this.capabilities = await Api.get('/api/capabilities');
       } catch (error) {
@@ -58,8 +60,36 @@ const App = {
     if (el) el.textContent = initial;
   },
 
+  scheduleDayRefresh() {
+    clearTimeout(this.dayRefreshTimer);
+    const activeDay = this.user?.progress?.activeDay;
+    if (!activeDay || activeDay.completed || activeDay.cyclesCompleted < 1) return;
+    const delay = new Date(activeDay.unlocksAt).getTime() - Date.now();
+    if (!Number.isFinite(delay)) return;
+    this.dayRefreshTimer = setTimeout(() => this.refreshDayState(), Math.max(500, Math.min(delay + 600, 2_147_000_000)));
+  },
+
+  async refreshDayState() {
+    if (!this.user || this.recorder?.isRecording) return;
+    try {
+      const previousDay = this.user.progress.currentDay;
+      const session = await Api.get('/api/session');
+      this.user = session.user;
+      this.devMode = session.devMode;
+      this.scheduleDayRefresh();
+      if (this.user.progress.currentDay !== previousDay && !this.workout.currentRecording) {
+        this.history = [];
+        this.rebuildWorkout(this.user.progress.currentDay);
+        this.render('home', {}, false);
+        this.toast(`${this.user.progress.currentDay}-kun ochildi.`, 'info');
+      }
+    } catch (error) {
+      console.warn('Kun holatini yangilab bo‘lmadi:', error.message);
+    }
+  },
+
   canPractice(day) {
-    return day <= this.user.progress.currentDay || this.user.progress.completedDays.includes(day);
+    return day === this.user.progress.currentDay && !this.user.progress.programCompletedAt;
   },
 
   getLesson(day) {
@@ -102,7 +132,7 @@ const App = {
       case 'focus': html = Screens.focus(lesson, this.workout.attempt1); break;
       case 'compare': html = Screens.compare(lesson, this.workout.attempt1, this.workout.attempt2); break;
       case 'completed': html = Screens.completed(params.completion, this.user.progress); break;
-      case 'library': html = Screens.library(this.content.curriculum); break;
+      case 'library': html = Screens.library(this.user, this.content.curriculum); break;
       case 'progress': html = Screens.progress(this.user, this.content.pillars); break;
       case 'profile': html = Screens.profile(this.user, this.devMode, this.capabilities); break;
       default: html = Screens.home(this.user, this.content.curriculum, this.capabilities, this.devMode);
@@ -147,9 +177,11 @@ const App = {
   },
 
   pendingAttempts(day) {
-    const lastCompletion = [...this.user.completions].reverse().find(item => item.day === day);
-    const cutoff = lastCompletion ? new Date(lastCompletion.completedAt).getTime() : 0;
-    return this.user.attempts.filter(item => item.day === day && new Date(item.createdAt).getTime() > cutoff);
+    const activeDay = this.user.progress.activeDay;
+    const cycle = activeDay?.day === day ? activeDay.activeCycle : null;
+    if (!cycle) return [];
+    const attemptIds = new Set([cycle.firstAttemptId, cycle.secondAttemptId].filter(Boolean));
+    return this.user.attempts.filter(item => attemptIds.has(item.id));
   },
 
   rebuildWorkout(day) {
@@ -197,6 +229,7 @@ const App = {
     try {
       const result = await Api.post('/api/onboarding', payload);
       this.user = result.user;
+      this.scheduleDayRefresh();
       this.workout.day = 1;
       TelegramApp.haptic('success');
       this.closeLoading();
@@ -378,7 +411,9 @@ const App = {
       result.attempt.audioKey = finalKey;
       result.attempt.audioUrl = recording.audioUrl;
       this.user = result.user;
-      if (this.workout.currentAttemptNumber === 1) this.workout.attempt1 = result.attempt;
+      this.rebuildWorkout(this.workout.day);
+      this.workout.currentAttemptNumber = result.attempt.attemptNumber;
+      if (result.attempt.attemptNumber === 1) this.workout.attempt1 = result.attempt;
       else this.workout.attempt2 = result.attempt;
       this.closeLoading();
       TelegramApp.haptic('success');
@@ -418,6 +453,7 @@ const App = {
         reflection: values.get('reflection') || ''
       });
       this.user = result.user;
+      this.scheduleDayRefresh();
       this.closeLoading();
       TelegramApp.haptic('success');
       this.render('completed', { day: result.completion.day, completion: result.completion }, false);
@@ -439,6 +475,7 @@ const App = {
       const result = await Api.post('/api/progress/reset', {});
       await AudioStore.removeByUser(userId);
       this.user = result.user;
+      this.scheduleDayRefresh();
       this.history = [];
       this.workout = { day: null, selectedFocus: '', currentAttemptNumber: 1, currentRecording: null, attempt1: null, attempt2: null };
       this.closeLoading();
@@ -481,4 +518,7 @@ const App = {
 };
 
 document.addEventListener('DOMContentLoaded', () => App.init());
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') App.refreshDayState();
+});
 window.App = App;

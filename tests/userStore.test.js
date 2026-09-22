@@ -143,6 +143,91 @@ test('24 soat o‘tsa ham to‘liq mashq siklisiz keyingi kun ochilmaydi', async
   assert.deepEqual(stillLocked.progress.completedDays, []);
 });
 
+test('kunlik sikl faqat tartibli va ishlatilmagan 1→2 urinishni qabul qiladi', async t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nutq30-cycle-'));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
+  const store = new UserStore({ dataDir: tempDir });
+  const authUser = { id: 'cycle-user', firstName: 'Sikl' };
+  const user = await store.getOrCreate(authUser);
+  await store.finishOnboarding(user.id, {
+    goal: 'ravonlik', level: 'boshlangich', dailyMinutes: 15, aiConsent: true
+  });
+
+  assert.equal(store.getNextAttemptNumber(user.id, 1), 1);
+  const first = await store.addAttempt(user.id, {
+    day: 1, attemptNumber: 2, durationSeconds: 60, evaluation: evaluation(44, 'Pauzani qisqartiring')
+  });
+  assert.equal(first.attemptNumber, 1);
+  assert.equal(store.getNextAttemptNumber(user.id, 1), 2);
+  assert.equal(store.getActiveCycleFocus(user.id, 1), 'Pauzani qisqartiring');
+
+  const second = await store.addAttempt(user.id, {
+    day: 1, attemptNumber: 1, durationSeconds: 60, evaluation: evaluation(61)
+  });
+  assert.equal(second.attemptNumber, 2);
+  assert.throws(() => store.getNextAttemptNumber(user.id, 1), /Avval ochiq mashq siklini saqlang/);
+  await assert.rejects(
+    store.addAttempt(user.id, { day: 1, attemptNumber: 1, durationSeconds: 60, evaluation: evaluation(70) }),
+    /Avval ochiq mashq siklini saqlang/
+  );
+  await assert.rejects(
+    store.completeDay(user.id, {
+      day: 1, attempt1Id: second.id, attempt2Id: first.id, comparison: 'yaxshilandi'
+    }),
+    /Birinchi va ikkinchi urinish/
+  );
+
+  const saved = await store.completeDay(user.id, {
+    day: 1, attempt1Id: first.id, attempt2Id: second.id, comparison: 'yaxshilandi'
+  });
+  const retried = await store.completeDay(user.id, {
+    day: 1, attempt1Id: first.id, attempt2Id: second.id, comparison: 'yaxshilandi'
+  });
+  assert.equal(retried.completion.id, saved.completion.id);
+  assert.equal(store.getById(user.id).progress.activeDay.activeCycle, null);
+  assert.equal(store.getNextAttemptNumber(user.id, 1), 1);
+});
+
+test('oldingi versiyadagi yarim qolgan sikl yangilanishdan keyin tiklanadi', async t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nutq30-recover-'));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
+  const store = new UserStore({ dataDir: tempDir });
+  const authUser = { id: 'recover-user', firstName: 'Tiklash' };
+  const user = await store.getOrCreate(authUser);
+  await store.finishOnboarding(user.id, {
+    goal: 'ravonlik', level: 'boshlangich', dailyMinutes: 15, aiConsent: true
+  });
+
+  const firstCreatedAt = new Date().toISOString();
+  const current = store.getById(user.id);
+  current.attempts = [{
+    id: 'legacy-open-first', day: 1, attemptNumber: 1, durationSeconds: 60,
+    createdAt: firstCreatedAt, evaluation: evaluation(47, 'Pauzani boshqaring')
+  }];
+  current.progress.activeDay.firstScore = 47;
+  current.progress.activeDay.latestScore = 47;
+  current.progress.activeDay.bestScore = 47;
+  current.progress.activeDay.growth = 0;
+  current.progress.activeDay.attemptCount = 1;
+  delete current.progress.activeDay.activeCycle;
+
+  const restored = await store.getOrCreate(authUser);
+  assert.equal(restored.progress.activeDay.activeCycle.firstAttemptId, 'legacy-open-first');
+  assert.equal(restored.progress.activeDay.activeCycle.secondAttemptId, null);
+  assert.ok(restored.attempts[0].cycleId);
+  assert.equal(store.getNextAttemptNumber(user.id, 1), 2);
+
+  const second = await store.addAttempt(user.id, {
+    day: 1, durationSeconds: 60, evaluation: evaluation(60)
+  });
+  assert.equal(second.attemptNumber, 2);
+  const completed = await store.completeDay(user.id, {
+    day: 1, attempt1Id: 'legacy-open-first', attempt2Id: second.id, comparison: 'yaxshilandi'
+  });
+  assert.equal(completed.completion.secondScore, 60);
+  assert.equal(store.getById(user.id).progress.activeDay.activeCycle, null);
+});
+
 test('eski tez ochilgan kunlarni 24 soatlik rejimga xavfsiz qaytaradi', async t => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nutq30-migrate-'));
   t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
