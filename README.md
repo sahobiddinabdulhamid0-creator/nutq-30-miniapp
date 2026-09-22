@@ -11,7 +11,7 @@ Har bir kun:
 3. nafas yoki artikulyatsiya tayyorgarligi;
 4. birinchi audio urinish;
 5. foydalanuvchining o‘z kuzatuvi;
-6. Gemini audio transkripsiyasi va dalilli tahlili;
+6. Gemini Live jonli matni, audio transkripsiyasi va dalilli tahlili;
 7. bitta fokus tanlash;
 8. ikkinchi urinish;
 9. ikki urinishni solishtirish;
@@ -33,6 +33,9 @@ Brauzerda `http://localhost:3000` manzilini oching. Telegram tashqarisida develo
 
 - `GEMINI_API_KEY` — Google AI Studio API kaliti.
 - `GEMINI_ANALYSIS_MODEL` — standart: `gemini-3.8-flash`.
+- `GEMINI_ANALYSIS_FALLBACK_MODELS` — 10 soniyada asosiy model javob bermasa birinchi bo‘lib `gemini-3.5-flash-lite` ishlaydi.
+- `GEMINI_TRANSCRIBE_MODEL` — zaxira maxsus audio transkripsiya modeli: `gemini-3.5-transcribe`.
+- `GEMINI_LIVE_TRANSCRIBE_MODEL` — mikrofon uchun jonli matn modeli: `gemini-3.5-transcribe-live`.
 - `GEMINI_TTS_MODEL` — standart: `gemini-3.1-flash-tts-preview`.
 - `BOT_TOKEN` — BotFather bergan bot tokeni.
 - `ALLOWED_TELEGRAM_USER_IDS` — vergul bilan ajratilgan ikki Telegram ID.

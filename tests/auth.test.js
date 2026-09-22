@@ -4,14 +4,17 @@ const crypto = require('node:crypto');
 
 const { createAuthMiddleware, validateTelegramInitData } = require('../server/auth');
 
-function signedInitData(botToken, user, extra = {}) {
+function signedInitData(botToken, user, extra = {}, { omitSignatureFromHash = false } = {}) {
   const params = new URLSearchParams({
     auth_date: String(Math.floor(Date.now() / 1000)),
     query_id: 'test-query',
     user: JSON.stringify(user),
     ...extra
   });
-  const pairs = [...params.entries()].map(([key, value]) => `${key}=${value}`).sort();
+  const pairs = [...params.entries()]
+    .filter(([key]) => !(omitSignatureFromHash && key === 'signature'))
+    .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+    .map(([key, value]) => `${key}=${value}`);
   const secret = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
   const hash = crypto.createHmac('sha256', secret).update(pairs.join('\n')).digest('hex');
   params.set('hash', hash);
@@ -43,6 +46,25 @@ test('Telegram yangi signature maydoni bilan initData imzosini tekshiradi', () =
 
   assert.equal(user.id, '456');
   assert.equal(user.firstName, 'Zuhra');
+});
+
+test('signature HMAC satridan tashqarida bo‘lgan Telegram formatini qabul qiladi', () => {
+  const token = '123456:test-token';
+  const initData = signedInitData(
+    token,
+    { id: 789, first_name: 'Ali', language_code: 'uz' },
+    {
+      signature: 'telegram-ed25519-signature_value',
+      chat_instance: '9223372036854775807',
+      chat_type: 'private',
+      start_param: 'menu'
+    },
+    { omitSignatureFromHash: true }
+  );
+  const user = validateTelegramInitData(initData, token);
+
+  assert.equal(user.id, '789');
+  assert.equal(user.languageCode, 'uz');
 });
 
 test('production aynan ikki foydalanuvchi allowlistini talab qiladi', () => {

@@ -319,6 +319,17 @@ fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 9px; }
 .waveform i { width: 5px; height: 8px; border-radius: 99px; background: #5eead4; transition: height .08s linear; }
 .keyword-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; }
 .keyword-row span { padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.1); font-size: 13px; }
+.live-transcript {
+  width: 100%;
+  min-height: 66px;
+  padding: 10px 12px;
+  border: 1px solid rgba(94,234,212,.25);
+  border-radius: 14px;
+  background: rgba(15,118,110,.14);
+  text-align: left;
+}
+.live-transcript span { color: #99f6e4; font-size: 12px; font-weight: 700; }
+.live-transcript p { margin-top: 5px; color: white; font-size: 14px; line-height: 1.45; }
 
 audio { width: 100%; }
 .counter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -379,4 +390,3 @@ audio { width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
-

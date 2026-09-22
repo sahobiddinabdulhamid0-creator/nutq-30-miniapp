@@ -20,19 +20,26 @@ function validateTelegramInitData(initData, botToken, maxAgeSeconds = DEFAULT_MA
   const receivedHash = params.get('hash');
   if (!receivedHash) throw new Error('Telegram imzosi topilmadi.');
 
-  const pairs = [];
-  for (const [key, value] of params.entries()) {
-    if (key !== 'hash') pairs.push(`${key}=${value}`);
-  }
-  pairs.sort((a, b) => a.localeCompare(b));
-
   const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
-  const expectedHash = crypto
-    .createHmac('sha256', secretKey)
-    .update(pairs.join('\n'))
-    .digest('hex');
+  const entries = [...params.entries()].filter(([key]) => key !== 'hash');
+  const createExpectedHash = ignoredKeys => {
+    const dataCheckString = entries
+      .filter(([key]) => !ignoredKeys.has(key))
+      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+      .map(([key, value]) => `${key}=${value}`)
+      .join('\n');
+    return crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+  };
 
-  if (!timingSafeHexEqual(receivedHash, expectedHash)) {
+  // Telegram klientlari yangi Ed25519 `signature` maydonini HMAC satriga
+  // qo‘shish-qo‘shmaslikda farq qilishi mumkin. Ikkala rasmiy format ham bot
+  // tokeni bilan qayta imzolanadi, shuning uchun xavfsizlik pasaymaydi.
+  const expectedHashes = [
+    createExpectedHash(new Set()),
+    createExpectedHash(new Set(['signature']))
+  ];
+
+  if (!expectedHashes.some(expectedHash => timingSafeHexEqual(receivedHash, expectedHash))) {
     throw new Error('Telegram imzosi noto‘g‘ri.');
   }
 

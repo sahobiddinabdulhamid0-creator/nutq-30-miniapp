@@ -5,10 +5,14 @@ const path = require('path');
 const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const API_KEY = process.env.GEMINI_API_KEY;
 const DEFAULT_ANALYSIS_MODEL = process.env.GEMINI_ANALYSIS_MODEL || 'gemini-3.8-flash';
-const ANALYSIS_FALLBACKS = String(process.env.GEMINI_ANALYSIS_FALLBACK_MODELS || 'gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash')
+const ANALYSIS_FALLBACKS = String(process.env.GEMINI_ANALYSIS_FALLBACK_MODELS || 'gemini-3.5-flash-lite,gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash')
   .split(',')
   .map(value => value.trim())
   .filter(Boolean);
+const TRANSCRIBE_MODEL = process.env.GEMINI_TRANSCRIBE_MODEL || 'gemini-3.5-transcribe';
+const LIVE_TRANSCRIBE_MODEL = process.env.GEMINI_LIVE_TRANSCRIBE_MODEL || 'gemini-3.5-transcribe-live';
+const PRIMARY_ANALYSIS_TIMEOUT_MS = Math.max(1000, Number(process.env.GEMINI_PRIMARY_TIMEOUT_MS) || 10_000);
+const FALLBACK_ANALYSIS_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_FALLBACK_TIMEOUT_MS) || 25_000);
 const TTS_MODEL = process.env.GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
 const TTS_VOICE = process.env.GEMINI_TTS_VOICE || 'Kore';
 
@@ -57,8 +61,13 @@ async function getCapabilities() {
     return {
       configured: false,
       analysisModel: DEFAULT_ANALYSIS_MODEL,
+      fallbackModel: ANALYSIS_FALLBACKS[0] || null,
+      transcribeModel: TRANSCRIBE_MODEL,
+      liveTranscribeModel: LIVE_TRANSCRIBE_MODEL,
       ttsModel: TTS_MODEL,
       analysisAvailable: false,
+      transcriptionAvailable: false,
+      liveTranscriptionAvailable: false,
       ttsAvailable: false
     };
   }
@@ -68,16 +77,26 @@ async function getCapabilities() {
     return {
       configured: true,
       analysisModel: [DEFAULT_ANALYSIS_MODEL, ...ANALYSIS_FALLBACKS].find(name => names.includes(name)) || DEFAULT_ANALYSIS_MODEL,
+      fallbackModel: ANALYSIS_FALLBACKS.find(name => names.includes(name)) || null,
+      transcribeModel: TRANSCRIBE_MODEL,
+      liveTranscribeModel: LIVE_TRANSCRIBE_MODEL,
       ttsModel: TTS_MODEL,
       analysisAvailable: [DEFAULT_ANALYSIS_MODEL, ...ANALYSIS_FALLBACKS].some(name => names.includes(name)),
+      transcriptionAvailable: names.includes(TRANSCRIBE_MODEL),
+      liveTranscriptionAvailable: names.includes(LIVE_TRANSCRIBE_MODEL),
       ttsAvailable: names.includes(TTS_MODEL)
     };
   } catch (error) {
     return {
       configured: true,
       analysisModel: DEFAULT_ANALYSIS_MODEL,
+      fallbackModel: ANALYSIS_FALLBACKS[0] || null,
+      transcribeModel: TRANSCRIBE_MODEL,
+      liveTranscribeModel: LIVE_TRANSCRIBE_MODEL,
       ttsModel: TTS_MODEL,
       analysisAvailable: true,
+      transcriptionAvailable: true,
+      liveTranscriptionAvailable: true,
       ttsAvailable: true,
       discoveryWarning: error.message
     };
@@ -229,15 +248,75 @@ JSON shakli:
 }`.trim();
 }
 
-async function callAnalysisModel(model, payload) {
-  const response = await geminiFetch(`/models/${encodeURIComponent(model)}:generateContent`, {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  });
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.find(part => typeof part.text === 'string')?.text;
-  if (!text) throw new Error('Gemini tahlil matnini qaytarmadi.');
-  return parseJsonResponse(text);
+function buildTranscriptAnalysisPrompt(lesson, attemptNumber, transcript, durationSeconds) {
+  return `${buildAnalysisPrompt(lesson, attemptNumber)}
+
+MAXSUS TRANSKRIPSIYA MODELI QAYTARGAN MATN:
+${transcript}
+
+AUDIO DAVOMIYLIGI: ${durationSeconds} soniya.
+Transkripsiyadagi parazit, takror, qayta boshlash va mazmuniy tuzilmani saqlagan holda JSON bahoni chiqaring. WPMni transkripsiya va davomiylikdan hisoblang.`;
+}
+
+async function withTimeout(operation, timeoutMs, label) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await operation(controller.signal);
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      const timeoutError = new Error(`${label} ${Math.round(timeoutMs / 1000)} soniyada javob bermadi.`);
+      timeoutError.status = 408;
+      timeoutError.code = 'GEMINI_TIMEOUT';
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function callAnalysisModel(model, payload, timeoutMs = FALLBACK_ANALYSIS_TIMEOUT_MS) {
+  return withTimeout(async signal => {
+    const response = await geminiFetch(`/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal
+    });
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.find(part => typeof part.text === 'string')?.text;
+    if (!text) throw new Error('Gemini tahlil matnini qaytarmadi.');
+    return parseJsonResponse(text);
+  }, timeoutMs, model);
+}
+
+async function transcribeAudio(audioBuffer, mimeType) {
+  const payload = {
+    contents: [{
+      role: 'user',
+      parts: [{ inlineData: { mimeType, data: audioBuffer.toString('base64') } }]
+    }],
+    generationConfig: {
+      audioTranscriptionConfig: {
+        languageCodes: []
+      }
+    }
+  };
+
+  return withTimeout(async signal => {
+    const response = await geminiFetch(`/models/${encodeURIComponent(TRANSCRIBE_MODEL)}:generateContent`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      signal
+    });
+    const data = await response.json();
+    const transcript = data.candidates?.[0]?.content?.parts
+      ?.map(part => part.audioTranscription?.text || part.text || '')
+      .join('\n')
+      .trim();
+    if (!transcript) throw new Error(`${TRANSCRIBE_MODEL} transkripsiya qaytarmadi.`);
+    return transcript;
+  }, FALLBACK_ANALYSIS_TIMEOUT_MS, TRANSCRIBE_MODEL);
 }
 
 async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, attemptNumber = 1, durationSeconds }) {
@@ -252,7 +331,7 @@ async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, att
     console.warn('Gemini modellar ro‘yxatini tekshirib bo‘lmadi:', error.message);
   }
 
-  let candidates = [DEFAULT_ANALYSIS_MODEL, ...ANALYSIS_FALLBACKS];
+  let candidates = [...new Set([DEFAULT_ANALYSIS_MODEL, ...ANALYSIS_FALLBACKS])];
   if (availableNames.length) candidates = candidates.filter(name => availableNames.includes(name));
   if (!candidates.length) candidates = [DEFAULT_ANALYSIS_MODEL];
 
@@ -271,10 +350,12 @@ async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, att
   };
 
   let lastError;
-  for (const model of candidates) {
-    for (let retry = 0; retry < 2; retry += 1) {
+  for (const [modelIndex, model] of candidates.entries()) {
+    const timeoutMs = modelIndex === 0 ? PRIMARY_ANALYSIS_TIMEOUT_MS : FALLBACK_ANALYSIS_TIMEOUT_MS;
+    const maxAttempts = modelIndex === 0 ? 1 : 2;
+    for (let retry = 0; retry < maxAttempts; retry += 1) {
       try {
-        const raw = await callAnalysisModel(model, payload);
+        const raw = await callAnalysisModel(model, payload, timeoutMs);
         const evaluation = validateEvaluation(raw, lesson, durationSeconds);
         evaluation.model = model;
         return evaluation;
@@ -282,9 +363,48 @@ async function analyzeSpeech({ audioBuffer, mimeType = 'audio/webm', lesson, att
         lastError = error;
         console.warn(`Gemini ${model} tahlili bajarilmadi:`, error.message);
         const transient = [429, 500, 502, 503, 504].includes(error.status);
-        if (!transient || retry === 1) break;
+        if (!transient || retry === maxAttempts - 1) break;
         await new Promise(resolve => setTimeout(resolve, 1000 * (retry + 1)));
       }
+    }
+  }
+
+  const transcribeAvailable = !availableNames.length || availableNames.includes(TRANSCRIBE_MODEL);
+  if (transcribeAvailable) {
+    try {
+      const transcript = await transcribeAudio(audioBuffer, mimeType);
+      const textPayload = {
+        contents: [{
+          role: 'user',
+          parts: [{ text: buildTranscriptAnalysisPrompt(lesson, attemptNumber, transcript, durationSeconds) }]
+        }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: 0.1
+        }
+      };
+      const textModels = [...new Set([
+        ANALYSIS_FALLBACKS.find(name => name === 'gemini-3.5-flash-lite'),
+        ...ANALYSIS_FALLBACKS,
+        DEFAULT_ANALYSIS_MODEL
+      ].filter(Boolean))]
+        .filter(name => !availableNames.length || availableNames.includes(name));
+
+      for (const model of textModels) {
+        try {
+          const raw = await callAnalysisModel(model, textPayload, FALLBACK_ANALYSIS_TIMEOUT_MS);
+          if (!raw.transcript) raw.transcript = transcript;
+          const evaluation = validateEvaluation(raw, lesson, durationSeconds);
+          evaluation.model = `${TRANSCRIBE_MODEL} + ${model}`;
+          return evaluation;
+        } catch (error) {
+          lastError = error;
+          console.warn(`Gemini transkript asosidagi ${model} tahlili bajarilmadi:`, error.message);
+        }
+      }
+    } catch (error) {
+      lastError = error;
+      console.warn(`Gemini ${TRANSCRIBE_MODEL} zaxira transkripsiyasi bajarilmadi:`, error.message);
     }
   }
   throw new Error(`Audio tahlil qilinmadi: ${lastError?.message || 'noma’lum xato'}`);

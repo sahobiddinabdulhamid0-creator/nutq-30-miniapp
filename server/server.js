@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
@@ -10,12 +11,17 @@ const { createAuthMiddleware } = require('./auth');
 const { configureTelegramBot, handleTelegramUpdate } = require('./botService');
 const { analyzeSpeech, getCapabilities, synthesizeLesson } = require('./geminiService');
 const { CURRICULUM, METRICS, PILLARS, STAGES, getDay } = require('./learningContent');
+const { createLiveTranscriptionGateway } = require('./liveTranscriptionGateway');
 const { UserStore, publicUser } = require('./userStore');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const store = new UserStore();
 const authenticate = createAuthMiddleware();
+const liveGateway = createLiveTranscriptionGateway({
+  apiKey: process.env.GEMINI_API_KEY,
+  model: process.env.GEMINI_LIVE_TRANSCRIBE_MODEL || 'gemini-3.5-transcribe-live'
+});
 
 const allowedAudioTypes = new Set([
   'audio/webm',
@@ -117,7 +123,7 @@ function safeJson(value, fallback = {}) {
 }
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'nutq-30', version: '2.0.0', time: new Date().toISOString() });
+  res.json({ ok: true, service: 'nutq-30', version: '2.1.0', time: new Date().toISOString() });
 });
 
 app.post('/api/telegram/webhook', async (req, res, next) => {
@@ -156,9 +162,6 @@ app.post('/api/onboarding', async (req, res, next) => {
     if (!allowedGoals.has(goal) || !allowedLevels.has(level)) {
       return res.status(400).json({ error: 'Maqsad yoki daraja noto‘g‘ri.' });
     }
-    if (req.body.aiConsent !== true) {
-      return res.status(400).json({ error: 'Gemini audio tahlili uchun rozilik kerak.' });
-    }
     const updated = await store.finishOnboarding(user.id, { goal, level, dailyMinutes, aiConsent: true });
     res.json({ user: publicUser(updated) });
   } catch (error) {
@@ -179,6 +182,15 @@ app.get('/api/curriculum/day/:day', (req, res) => {
 app.get('/api/capabilities', rateLimit({ windowMs: 60_000, max: 10, keyPrefix: 'capabilities' }), async (req, res, next) => {
   try {
     res.json(await getCapabilities());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/live/token', rateLimit({ windowMs: 60_000, max: 8, keyPrefix: 'live-token' }), async (req, res, next) => {
+  try {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(liveGateway.issueTicket(req.authUser.id));
   } catch (error) {
     next(error);
   }
@@ -279,7 +291,10 @@ app.post('/api/progress/reset', async (req, res, next) => {
 
 app.use(express.static(path.join(__dirname, '../public'), {
   etag: true,
-  maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0
+  maxAge: 0,
+  setHeaders(res) {
+    res.setHeader('Cache-Control', 'no-cache');
+  }
 }));
 
 app.get('*', (req, res) => {
@@ -296,9 +311,11 @@ app.use((error, req, res, next) => {
   res.status(status).json({ error: publicMessage, requestId: req.requestId });
 });
 
-let server;
+const server = http.createServer(app);
+liveGateway.attach(server);
+
 if (require.main === module) {
-  server = app.listen(PORT, async () => {
+  server.listen(PORT, async () => {
     console.log(`Nutq 30 server: http://localhost:${PORT}`);
     console.log(`Muhit: ${process.env.NODE_ENV || 'development'}`);
     try {

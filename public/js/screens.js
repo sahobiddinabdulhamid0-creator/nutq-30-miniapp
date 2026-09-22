@@ -65,15 +65,6 @@ const Screens = {
             </select>
           </div>
 
-          <div class="card warning stack">
-            <h3>Audio va Gemini tahlili</h3>
-            <p class="small">Nutq yozuvi tahlil vaqtida Google Gemini API’ga yuboriladi. Server audio faylni saqlamaydi; yozuv faqat shu qurilmada qoladi. Serverda transkripsiya, ball va tavsiyalar saqlanadi.</p>
-            <label class="check-row">
-              <input type="checkbox" name="aiConsent" required>
-              <span>Audio tahlil uchun yuborilishini tushundim va roziman.</span>
-            </label>
-          </div>
-
           <button class="button" type="submit">1-kunni boshlash →</button>
         </form>
       </section>`;
@@ -203,7 +194,7 @@ const Screens = {
       </section>`;
   },
 
-  record(lesson, attemptNumber, selectedFocus = '') {
+  record(lesson, attemptNumber, selectedFocus = '', liveAvailable = false) {
     const maxTime = Math.max(lesson.recommendedSeconds + 30, lesson.recommendedSeconds * 1.35);
     return `
       <section class="record-shell">
@@ -216,6 +207,7 @@ const Screens = {
           <div id="waveform" class="waveform" aria-label="Ovoz darajasi">${Array.from({ length: 18 }, () => '<i></i>').join('')}</div>
           <button id="recordButton" class="record-button" type="button" onclick="App.toggleRecording(${Math.round(maxTime)})" aria-label="Yozishni boshlash">Yozish</button>
           <p id="recordHint">Tugmani bosing va tabiiy gapiring</p>
+          ${liveAvailable ? '<div class="live-transcript"><span id="liveStatus">Jonli matn yozuv boshlanganda ulanadi</span><p id="liveTranscript"></p></div>' : ''}
         </div>
         <p class="small muted">Tavsiya: ${lesson.recommendedSeconds} soniya. Xato qilsangiz to‘xtamang; fikrni davom ettiring.</p>
       </section>`;
@@ -345,7 +337,7 @@ const Screens = {
         ${devMode ? this.devSwitch(user.id) : ''}
         <div class="card stack"><span class="avatar-button" style="display:grid;place-items:center">${escapeHtml(user.profile.firstName[0] || 'N')}</span><h1>${escapeHtml(user.profile.firstName)}</h1><p class="muted">${user.profile.username ? `@${escapeHtml(user.profile.username)}` : `ID: ${escapeHtml(user.id)}`}</p></div>
         <div class="card stack"><h2>Mashq sozlamalari</h2><div class="row-between"><span>Maqsad</span><strong>${escapeHtml(user.onboarding.goal || '—')}</strong></div><div class="row-between"><span>Daraja</span><strong>${escapeHtml(user.onboarding.level || '—')}</strong></div><div class="row-between"><span>Kunlik vaqt</span><strong>${user.onboarding.dailyMinutes || 15} daqiqa</strong></div></div>
-        <div class="card stack"><h2>AI va maxfiylik</h2><p class="small">Audio faqat qurilmada saqlanadi. Tahlil vaqtida Gemini API’ga yuboriladi; server transkripsiya va natijani saqlaydi.</p><div class="row-between"><span>Nutq tahlili</span><span class="pill ${capabilities?.analysisAvailable ? 'success' : ''}">${capabilities?.analysisAvailable ? 'Faol' : 'Tekshirish kerak'}</span></div><div class="row-between"><span>Audio dars TTS</span><span class="pill ${capabilities?.ttsAvailable ? 'success' : ''}">${capabilities?.ttsAvailable ? 'Faol' : 'Tekshirish kerak'}</span></div></div>
+        <div class="card stack"><h2>AI va maxfiylik</h2><p class="small">Audio faqat qurilmada saqlanadi. Tahlil vaqtida Gemini API’ga yuboriladi; server transkripsiya va natijani saqlaydi.</p><div class="row-between"><span>Nutq tahlili</span><span class="pill ${capabilities?.analysisAvailable ? 'success' : ''}">${capabilities?.analysisAvailable ? 'Faol' : 'Tekshirish kerak'}</span></div><div class="row-between"><span>Jonli transkripsiya</span><span class="pill ${capabilities?.liveTranscriptionAvailable ? 'success' : ''}">${capabilities?.liveTranscriptionAvailable ? 'Faol' : 'Tekshirish kerak'}</span></div><div class="row-between"><span>Audio dars TTS</span><span class="pill ${capabilities?.ttsAvailable ? 'success' : ''}">${capabilities?.ttsAvailable ? 'Faol' : 'Tekshirish kerak'}</span></div></div>
         <div class="card warning stack"><h2>Progressni boshidan boshlash</h2><p class="small">Faqat shu profilning progressi, transkripsiyalari va qurilmada saqlangan audiolari o‘chiriladi.</p><button class="button danger" type="button" onclick="App.confirmReset()">Progressni tozalash</button></div>
       </section>`;
   },

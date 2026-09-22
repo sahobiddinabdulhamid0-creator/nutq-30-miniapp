@@ -7,6 +7,7 @@ const App = {
   capabilities: null,
   devMode: false,
   recorder: null,
+  liveTranscriber: null,
   warmupInterval: null,
   ttsUrl: null,
   workout: {
@@ -31,7 +32,7 @@ const App = {
       try {
         this.capabilities = await Api.get('/api/capabilities');
       } catch (error) {
-        this.capabilities = { configured: false, analysisAvailable: false, ttsAvailable: false };
+        this.capabilities = { configured: false, analysisAvailable: false, liveTranscriptionAvailable: false, ttsAvailable: false };
         console.warn('Gemini holatini tekshirib bo‘lmadi:', error.message);
       }
       this.updateIdentity();
@@ -91,7 +92,7 @@ const App = {
         this.ensureWorkout(day);
         html = Screens.prepare(lesson, params.attemptNumber || this.workout.currentAttemptNumber, this.workout.selectedFocus);
         break;
-      case 'record': html = Screens.record(lesson, this.workout.currentAttemptNumber, this.workout.selectedFocus); break;
+      case 'record': html = Screens.record(lesson, this.workout.currentAttemptNumber, this.workout.selectedFocus, this.capabilities?.liveTranscriptionAvailable); break;
       case 'review': html = Screens.review(lesson, this.workout.currentAttemptNumber, this.workout.currentRecording); break;
       case 'analysis': {
         const attempt = params.attempt || (this.workout.currentAttemptNumber === 1 ? this.workout.attempt1 : this.workout.attempt2);
@@ -182,7 +183,7 @@ const App = {
       goal: form.get('goal'),
       level: form.get('level'),
       dailyMinutes: Number(form.get('dailyMinutes')),
-      aiConsent: form.get('aiConsent') === 'on'
+      aiConsent: true
     };
     this.renderLoading('Profil yaratilmoqda…', 'Progress 1-kundan boshlanadi.');
     try {
@@ -256,7 +257,26 @@ const App = {
     this.workout.currentAttemptNumber = attemptNumber;
     this.workout.currentRecording = null;
     this.recorder?.cancel();
+    this.liveTranscriber?.stop();
     this.recorder = new AudioSpeechRecorder();
+    this.liveTranscriber = this.capabilities?.liveTranscriptionAvailable
+      ? new GeminiLiveTranscriber({
+          onTranscript: text => {
+            const transcript = document.getElementById('liveTranscript');
+            if (transcript) transcript.textContent = text;
+          },
+          onStatus: status => {
+            const label = document.getElementById('liveStatus');
+            if (!label) return;
+            label.textContent = {
+              connecting: 'Jonli transkripsiya ulanmoqda…',
+              ready: 'Jonli transkripsiya faol',
+              unavailable: 'Jonli matn vaqtincha ishlamadi; audio yozuv davom etadi'
+            }[status] || '';
+          }
+        })
+      : null;
+    this.recorder.onPcm = bytes => this.liveTranscriber?.sendPcm(bytes);
     this.recorder.onTick = (seconds, formatted) => {
       const timer = document.getElementById('recordTimer');
       if (timer) timer.textContent = formatted;
@@ -277,6 +297,10 @@ const App = {
     const hint = document.getElementById('recordHint');
     try {
       await this.recorder.start({ maxSeconds });
+      this.liveTranscriber?.start().catch(error => {
+        console.warn('Jonli transkripsiya ishga tushmadi:', error.message);
+        this.liveTranscriber?.onStatus?.('unavailable');
+      });
       button?.classList.add('recording');
       if (button) { button.textContent = 'To‘xtatish'; button.setAttribute('aria-label', 'Yozishni to‘xtatish'); }
       if (hint) hint.textContent = 'Yozilmoqda… Fikrni oxirigacha ayting';
@@ -290,6 +314,7 @@ const App = {
     if (!this.recorder?.isRecording) return;
     try {
       const result = await this.recorder.stop();
+      this.liveTranscriber?.stop();
       const tempKey = `${this.user.id}:temp:${this.workout.day}:${this.workout.currentAttemptNumber}`;
       await AudioStore.put(tempKey, result.blob);
       this.workout.currentRecording = { ...result, tempKey };
@@ -310,9 +335,11 @@ const App = {
     if (this.recorder?.isRecording) {
       return this.openDialog('Yozuvni bekor qilasizmi?', 'Hozirgi audio saqlanmaydi.', () => {
         this.recorder.cancel();
+        this.liveTranscriber?.stop();
         this.render('prepare', { day: this.workout.day, attemptNumber: this.workout.currentAttemptNumber }, false);
       });
     }
+    this.liveTranscriber?.stop();
     this.render('prepare', { day: this.workout.day, attemptNumber: this.workout.currentAttemptNumber }, false);
   },
 

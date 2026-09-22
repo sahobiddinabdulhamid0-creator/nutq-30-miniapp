@@ -3,7 +3,10 @@ class AudioSpeechRecorder {
     this.mediaRecorder = null;
     this.stream = null;
     this.audioContext = null;
+    this.source = null;
     this.analyser = null;
+    this.processor = null;
+    this.silentGain = null;
     this.animationFrame = null;
     this.timer = null;
     this.chunks = [];
@@ -13,6 +16,7 @@ class AudioSpeechRecorder {
     this.maxSeconds = 300;
     this.onTick = null;
     this.onVolume = null;
+    this.onPcm = null;
     this.onLimit = null;
   }
 
@@ -69,10 +73,10 @@ class AudioSpeechRecorder {
     };
     this.mediaRecorder.onerror = event => console.error('MediaRecorder:', event.error);
 
-    this._startMeter();
     this.mediaRecorder.start(500);
     this.isRecording = true;
     this.startedAt = Date.now();
+    this._startMeter();
     this._startTimer();
     return true;
   }
@@ -92,10 +96,25 @@ class AudioSpeechRecorder {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
     this.audioContext = new AudioContextClass();
-    const source = this.audioContext.createMediaStreamSource(this.stream);
+    this.audioContext.resume?.().catch(() => {});
+    this.source = this.audioContext.createMediaStreamSource(this.stream);
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 256;
-    source.connect(this.analyser);
+    this.source.connect(this.analyser);
+
+    if (this.audioContext.createScriptProcessor) {
+      this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
+      this.silentGain = this.audioContext.createGain();
+      this.silentGain.gain.value = 0;
+      this.processor.onaudioprocess = event => {
+        if (!this.isRecording || !this.onPcm) return;
+        const input = event.inputBuffer.getChannelData(0);
+        this.onPcm(AudioSpeechRecorder.toPcm16k(input, this.audioContext.sampleRate));
+      };
+      this.source.connect(this.processor);
+      this.processor.connect(this.silentGain);
+      this.silentGain.connect(this.audioContext.destination);
+    }
     const values = new Uint8Array(this.analyser.frequencyBinCount);
     const draw = () => {
       if (!this.isRecording && this.mediaRecorder?.state !== 'recording') return;
@@ -137,11 +156,36 @@ class AudioSpeechRecorder {
   _cleanup() {
     clearInterval(this.timer);
     if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
+    if (this.processor) this.processor.onaudioprocess = null;
+    try { this.processor?.disconnect(); } catch {}
+    try { this.silentGain?.disconnect(); } catch {}
+    try { this.source?.disconnect(); } catch {}
     this.stream?.getTracks().forEach(track => track.stop());
     this.stream = null;
     if (this.audioContext && this.audioContext.state !== 'closed') this.audioContext.close().catch(() => {});
     this.audioContext = null;
+    this.source = null;
     this.analyser = null;
+    this.processor = null;
+    this.silentGain = null;
+  }
+
+  static toPcm16k(input, sourceRate) {
+    const targetRate = 16000;
+    const ratio = sourceRate / targetRate;
+    const outputLength = Math.max(1, Math.floor(input.length / ratio));
+    const buffer = new ArrayBuffer(outputLength * 2);
+    const view = new DataView(buffer);
+
+    for (let outputIndex = 0; outputIndex < outputLength; outputIndex += 1) {
+      const start = Math.floor(outputIndex * ratio);
+      const end = Math.min(input.length, Math.max(start + 1, Math.floor((outputIndex + 1) * ratio)));
+      let sum = 0;
+      for (let inputIndex = start; inputIndex < end; inputIndex += 1) sum += input[inputIndex];
+      const sample = Math.max(-1, Math.min(1, sum / (end - start)));
+      view.setInt16(outputIndex * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+    }
+    return new Uint8Array(buffer);
   }
 
   static formatTime(seconds) {
@@ -152,4 +196,3 @@ class AudioSpeechRecorder {
 }
 
 window.AudioSpeechRecorder = AudioSpeechRecorder;
-
