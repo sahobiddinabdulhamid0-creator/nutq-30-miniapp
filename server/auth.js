@@ -22,7 +22,7 @@ function validateTelegramInitData(initData, botToken, maxAgeSeconds = DEFAULT_MA
 
   const pairs = [];
   for (const [key, value] of params.entries()) {
-    if (key !== 'hash' && key !== 'signature') pairs.push(`${key}=${value}`);
+    if (key !== 'hash') pairs.push(`${key}=${value}`);
   }
   pairs.sort((a, b) => a.localeCompare(b));
 
