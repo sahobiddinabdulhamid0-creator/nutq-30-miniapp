@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Nutq 30 — Nutq Mahorati</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Google Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration verbatim from theme -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#e9e7ee",
+            "error-container": "#ffdad6",
+            "on-primary-fixed": "#00201d",
+            "secondary-fixed-dim": "#ffb95f",
+            "outline": "#6e7977",
+            "on-primary-fixed-variant": "#00504a",
+            "on-primary-container": "#a3faef",
+            "surface-variant": "#e3e1e8",
+            "surface-container-low": "#f4f3fa",
+            "surface-tint": "#1a6962",
+            "on-secondary-container": "#754900",
+            "secondary-fixed": "#ffddb8",
+            "on-tertiary-fixed-variant": "#00504b",
+            "surface-bright": "#faf8ff",
+            "tertiary-fixed-dim": "#8fd3cc",
+            "on-error": "#ffffff",
+            "on-secondary-fixed": "#2a1700",
+            "tertiary": "#00423e",
+            "surface-container-highest": "#dae2fd",
+            "surface": "#faf8ff",
+            "primary-fixed-dim": "#8cd4ca",
+            "inverse-on-surface": "#f2f0f7",
+            "on-error-container": "#93000a",
+            "secondary-container": "#fdb965",
+            "on-tertiary-fixed": "#00201e",
+            "primary-fixed": "#9cf2e8",
+            "surface-dim": "#dbd9e0",
+            "on-secondary": "#ffffff",
+            "on-primary": "#ffffff",
+            "tertiary-container": "#2f746f",
+            "on-tertiary-container": "#b3f7f0",
+            "inverse-surface": "#283044",
+            "primary-container": "#0f766e",
+            "on-surface-variant": "#3f4947",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-tertiary": "#ffffff",
+            "error": "#ba1a1a",
+            "outline-variant": "#bec9c6",
+            "surface-container-lowest": "#ffffff",
+            "on-background": "#131b2e",
+            "background": "#faf8ff",
+            "on-surface": "#131b2e",
+            "tertiary-fixed": "#abefe8",
+            "inverse-primary": "#8cd4ca",
+            "surface-container": "#eaedff",
+            "secondary": "#855300",
+            "primary": "#00433d"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "space-md": "1rem",
+            "space-lg": "1.25rem",
+            "space-xl": "1.5rem"
+          },
+          "fontFamily": {
+            "title-md": ["Manrope"],
+            "headline-lg": ["Manrope"],
+            "metric-timer": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-xl": ["Manrope"],
+            "headline-md": ["Manrope"]
+          },
+          "fontSize": {
+            "title-md": ["17px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "metric-timer": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    /* iOS Glassmorphism & visionOS specular lighting styles */
+    .glass-surface {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: 
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
+        0 14px 32px -8px rgba(15, 118, 110, 0.08),
+        0 4px 12px -2px rgba(15, 23, 42, 0.04);
+    }
+    
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .glass-button-hero {
+      background: linear-gradient(135deg, #0F766E 0%, #14B8A6 100%);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.35),
+        0 10px 25px -4px rgba(15, 118, 110, 0.45);
+    }
+
+    /* Waveform pulsing micro-animation */
+    @keyframes wavePulse {
+      0%, 100% { height: 6px; }
+      50% { height: 22px; }
+    }
+    .wave-bar-active {
+      animation: wavePulse 1.4s ease-in-out infinite;
+    }
+    
+    /* Smooth custom scrollbars suppressed for native app feel */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed-dim selection:text-on-primary-fixed min-h-screen flex justify-center items-start">
+<!-- Telegram Mobile Shell Container (Max 480px) -->
+<div class="relative w-full max-w-[480px] min-h-screen bg-[#F6FAF8] overflow-hidden flex flex-col justify-between shadow-2xl pb-28">
+<!-- 3D Atmospheric Glowing Ambient Orbs (VisionOS / Glass Depth) -->
+<div class="pointer-events-none absolute -top-24 -left-20 w-80 h-80 rounded-full bg-gradient-to-br from-primary-fixed/60 to-primary-container/20 blur-[70px] opacity-80"></div>
+<div class="pointer-events-none absolute top-48 -right-28 w-88 h-88 rounded-full bg-gradient-to-bl from-secondary-fixed/50 to-secondary-container/20 blur-[80px] opacity-70"></div>
+<div class="pointer-events-none absolute top-[520px] -left-24 w-72 h-72 rounded-full bg-gradient-to-tr from-surface-container-highest/60 to-tertiary-fixed/30 blur-[75px] opacity-75"></div>
+<!-- MAIN SCROLLABLE CONTENT CANVAS -->
+<main class="relative z-10 w-full flex flex-col px-4 pt-1">
+<!-- 1. Telegram Native Mini App Bar (Shared Components standard header) -->
+<header class="w-full flex items-center justify-between h-11 px-1 text-on-surface-variant">
+<button aria-label="Yopish" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container-low transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[19px]">close</span>
+</button>
+<!-- App Title Anchor with Telegram-style Verified Pill -->
+<div class="flex items-center space-x-1.5 px-3 py-1 rounded-full glass-pill">
+<span class="font-title-md text-[13px] tracking-tight text-on-surface font-bold">Nutq 30</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+</div>
+<button aria-label="Ko'proq sozlamalar" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container-low transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</header>
+<!-- 2. Profile Greeting & 3D Glass Streak Capsule -->
+<section class="mt-3 flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="relative w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-primary-container via-primary-fixed to-secondary-container shadow-sm">
+<img class="w-full h-full object-cover rounded-full bg-surface-container-high" data-alt="A refined portrait of a young Uzbek professional man in modern smart-casual attire, smiling confidently with clean rim studio lighting, soft blurred teal backdrop representing modern educational excellence and personal growth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCK2lSvk-YxUGdnLSfjbq1w-6AkGbtqsGWMx1ITpLajuwbVYRpVYdrc08MgHFXGd3ZkYvbIHv7vT8cfM2zfVMI7sfZs3ubSEyHHsLN4JXuFBGO9201NomjqpHVNpuGvGrOlqT1ML83JBDLDgiRB5-ERNiwaViHibrDjEq8Tx2hgiHF46bSGjsa9jmIy10VOZj9COT0GircarPcIakGjhQx3_GK6mvQ6yF5ET8nmWKXZ78l13jPYPTDdDiSTeFc2YrzpxDMGlO-KAvWJ"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary-container border-2 border-white rounded-full"></span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface leading-tight font-extrabold tracking-tight">Salom, Jasur!</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant font-medium">Bugungi odatiy mashg'ulot</p>
+</div>
+</div>
+<!-- 3D Glass Streak Badge -->
+<div class="glass-pill px-3 py-1.5 rounded-full flex items-center space-x-1.5 border border-white/80 shadow-sm active:scale-95 transition-transform cursor-pointer">
+<span class="text-base select-none">🔥</span>
+<span class="font-label-md text-label-md font-bold text-secondary">8 kun</span>
+</div>
+</section>
+<!-- 3. Glass Progress Capsule -->
+<section class="mt-4 glass-surface rounded-2xl p-3.5">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-md text-label-md font-bold text-primary-container">8 / 30 kun</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">27% yakunlandi</span>
+</div>
+<!-- Animated glowing bar track -->
+<div class="relative w-full h-2.5 bg-outline-variant/30 rounded-full overflow-hidden p-[1px]">
+<div class="h-full rounded-full bg-gradient-to-r from-primary via-primary-container to-primary-fixed w-[27%] relative shadow-[0_0_12px_rgba(15,118,110,0.5)]">
+<div class="absolute right-0 top-0 bottom-0 w-2 bg-white rounded-full opacity-90 blur-[1px]"></div>
+</div>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center space-x-1">
+<span class="material-symbols-outlined text-[14px] text-primary-container">flag</span>
+<span class="font-label-sm text-label-sm">Keyingi marra: 15-kunlik oraliq sinov</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-primary">7 kun qoldi</span>
+</div>
+</section>
+<!-- 4. 3D Hero Focal Card ("Bugungi Fokus • 8-KUN") -->
+<section class="mt-4 glass-surface rounded-[24px] p-5 relative overflow-hidden">
+<!-- Soft inner light reflection -->
+<div class="absolute -top-12 -right-12 w-36 h-36 bg-primary-fixed/30 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-primary-container/10 border border-primary-container/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span class="font-label-sm text-label-sm font-bold text-primary-container tracking-wider">8-KUN • MIKRO-DARS</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Tavsiya etilgan</span>
+</div>
+<h2 class="mt-3 font-headline-md text-headline-md font-bold text-on-surface leading-snug">
+          NNQ Modeli: 3 Qadamda Aniq Fikr
+        </h2>
+<p class="mt-1.5 font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+          Fikringizni 60 soniyada niyat, kutilgan natija va aniq qadam bilan ravon ifodalang.
+        </p>
+<!-- 3D Interactive Formula Pill Strip -->
+<div class="mt-4 py-2 px-2.5 rounded-xl bg-surface-container-low/60 border border-white/60 flex items-center justify-between">
+<!-- Step 1 -->
+<div class="flex-1 text-center py-1 px-1 rounded-lg bg-white/70 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+<span class="font-label-sm text-[10px] uppercase font-bold text-primary-container block">1. Niyat</span>
+<span class="font-body-sm text-[11px] text-on-surface font-medium truncate block">Nima uchun?</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline-variant px-1 font-bold">arrow_forward</span>
+<!-- Step 2 -->
+<div class="flex-1 text-center py-1 px-1 rounded-lg bg-white/70 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+<span class="font-label-sm text-[10px] uppercase font-bold text-primary-container block">2. Natija</span>
+<span class="font-body-sm text-[11px] text-on-surface font-medium truncate block">Kutilma</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline-variant px-1 font-bold">arrow_forward</span>
+<!-- Step 3 -->
+<div class="flex-1 text-center py-1 px-1 rounded-lg bg-white/70 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+<span class="font-label-sm text-[10px] uppercase font-bold text-primary-container block">3. Qadam</span>
+<span class="font-body-sm text-[11px] text-on-surface font-medium truncate block">Harakat</span>
+</div>
+</div>
+<!-- Meta info pill indicators -->
+<div class="mt-3.5 flex items-center space-x-3 text-on-surface-variant">
+<div class="flex items-center space-x-1">
+<span class="material-symbols-outlined text-[15px] text-outline">timer</span>
+<span class="font-label-md text-label-md">10 daqiqa dars</span>
+</div>
+<span class="text-outline-variant">•</span>
+<div class="flex items-center space-x-1">
+<span class="material-symbols-outlined text-[15px] text-outline">mic</span>
+<span class="font-label-md text-label-md">2 ta audio urinish</span>
+</div>
+</div>
+<!-- Flagship 54px 3D Tactile CTA Button -->
+<button class="mt-5 w-full h-[54px] glass-button-hero rounded-2xl flex items-center justify-between px-5 text-white active:scale-[0.98] transition-all duration-150 group" type="button">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[20px] text-white" data-weight="fill" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+<span class="font-title-md text-[16px] font-bold tracking-tight">Mashqni boshlash</span>
+</div>
+<span class="material-symbols-outlined text-[22px] text-white/90 group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</section>
+<!-- 5. Smart 3D Audio Snapshot (Bugungi Urinishlar - Maks. 2 ta) -->
+<section class="mt-5">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="font-title-md text-title-md font-bold text-on-surface">Bugungi audio urinishlar</h3>
+<div class="flex items-center space-x-1 text-primary">
+<span class="material-symbols-outlined text-[15px]">psychology</span>
+<span class="font-label-sm text-label-sm font-semibold">Baholash: AI Murabbiy</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<!-- Card 1: Completed State -->
+<div class="glass-surface rounded-2xl p-3.5 flex flex-col justify-between border-l-4 border-l-primary-container">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm font-bold text-on-surface-variant">1-urinish</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed/50 text-on-primary-fixed font-label-sm text-[11px] font-bold">74 ball</span>
+</div>
+<!-- Mini interactive audio waveform mock -->
+<div class="bg-surface-container-low/80 rounded-xl p-2 flex items-center space-x-2 my-1">
+<button aria-label="Tinglash" class="w-7 h-7 rounded-full bg-primary-container text-white flex items-center justify-center shrink-0 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<!-- Static & Animated waveform bars -->
+<div class="flex items-center space-x-[2px] h-6 flex-1 overflow-hidden">
+<div class="w-1 bg-primary-container rounded-full h-3"></div>
+<div class="w-1 bg-primary-container rounded-full h-5"></div>
+<div class="w-1 bg-primary-container rounded-full h-2"></div>
+<div class="w-1 bg-primary-container rounded-full h-6"></div>
+<div class="w-1 bg-primary-container rounded-full h-4"></div>
+<div class="w-1 bg-outline-variant/60 rounded-full h-3"></div>
+<div class="w-1 bg-outline-variant/60 rounded-full h-5"></div>
+<div class="w-1 bg-outline-variant/60 rounded-full h-2"></div>
+</div>
+<span class="font-metric-timer text-[11px] text-on-surface-variant">0:58</span>
+</div>
+</div>
+<!-- Feedback tag -->
+<div class="mt-2.5 pt-2 border-t border-outline-variant/30 flex items-center space-x-1">
+<span class="material-symbols-outlined text-[13px] text-secondary">info</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant font-medium">4 ta parazit so'z</span>
+</div>
+</div>
+<!-- Card 2: Upcoming / Next Step with Bonus Potential -->
+<div class="glass-surface rounded-2xl p-3.5 flex flex-col justify-between border border-dashed border-primary-container/40 bg-white/40">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-sm text-label-sm font-bold text-primary-container">2-urinish</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-[11px] font-semibold">Navbatdagi</span>
+</div>
+<div class="py-1">
+<p class="font-body-sm text-[12px] font-semibold text-on-surface">Kutilmoqda</p>
+<p class="font-label-sm text-[11px] text-primary mt-0.5 leading-tight">
+<strong class="font-bold">+12 ball</strong> o'sish imkoni (1 soniya sokin pauza qiling)
+                </p>
+</div>
+</div>
+<button class="mt-2.5 w-full py-1.5 rounded-xl bg-primary-container/10 border border-primary-container/20 text-primary-container font-label-md text-label-md font-bold text-center active:scale-95 transition-all" type="button">
+              Boshlash
+            </button>
+</div>
+</div>
+</section>
+<!-- 6. Quick Voice Warm-Up Glass Widget (5-daqiqa Diksiya) -->
+<section class="mt-4 mb-2">
+<div class="glass-surface rounded-2xl p-3.5 flex items-center justify-between border border-white/80 shadow-sm">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed/40 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">graphic_eq</span>
+</div>
+<div>
+<span class="font-label-sm text-[10px] uppercase font-bold text-secondary tracking-wider block">Tez aytish • Diksiya</span>
+<p class="font-body-sm text-body-sm text-on-surface font-semibold line-clamp-1">
+                «Qishda kishmish pishmasmish...»
+              </p>
+</div>
+</div>
+<a class="font-label-md text-label-md font-bold text-primary-container flex items-center shrink-0 pl-2 hover:underline" href="#">
+            Mashq ➔
+          </a>
+</div>
+</section>
+</main>
+<!-- 7. Shared Component: BottomNavBar (Fixed Docked Shell) -->
+<!-- Executing Shared JSON classes and semantic 'Darslar/Mashq' state matching -->
+<nav aria-label="Asosiy navigatsiya" class="fixed bottom-0 left-0 right-0 w-full max-w-[480px] mx-auto z-50 flex justify-around items-center px-3 pt-2 pb-safe bg-surface-container-lowest/95 backdrop-blur-md border-t border-outline-variant/40 shadow-[0_-4px_16px_rgba(15,23,42,0.06)] rounded-t-xl">
+<!-- Tab 1: Darslar (Active Home Tab in this view) -->
+<a aria-current="page" class="flex flex-col items-center justify-center text-primary bg-primary-fixed/30 rounded-full px-3 py-1 active:scale-95 transition-transform duration-150 ease-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-sm text-label-sm font-bold mt-0.5">Darslar</span>
+</a>
+<!-- Tab 2: Mashq -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors duration-150 px-3 py-1 active:scale-95 transition-transform duration-150 ease-out" href="#">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+<span class="font-label-sm text-label-sm font-medium mt-0.5">Mashq</span>
+</a>
+<!-- Tab 3: Lug'at -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors duration-150 px-3 py-1 active:scale-95 transition-transform duration-150 ease-out" href="#">
+<span class="material-symbols-outlined text-[20px]">menu_book</span>
+<span class="font-label-sm text-label-sm font-medium mt-0.5">Lug'at</span>
+</a>
+<!-- Tab 4: Profil -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors duration-150 px-3 py-1 active:scale-95 transition-transform duration-150 ease-out" href="#">
+<span class="material-symbols-outlined text-[20px]">person</span>
+<span class="font-label-sm text-label-sm font-medium mt-0.5">Profil</span>
+</a>
+</nav>
+</div>
+</body></html>

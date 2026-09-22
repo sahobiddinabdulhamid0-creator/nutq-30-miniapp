@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="uz" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nutq 30 - 3D Glass Ovoz Yozish Studiyasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            manrope: ['Manrope', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              teal: '#00F2FE',
+              emerald: '#4FACFE',
+              primary: '#0d9488',
+              glow: '#2dd4bf',
+              dark: '#08131d',
+              glass: 'rgba(15, 30, 44, 0.65)',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #060e17;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Ambient 3D Mesh Gradient Background */
+    .vision-ambient {
+      background: 
+        radial-gradient(circle at 50% 18%, rgba(13, 148, 136, 0.35) 0%, transparent 60%),
+        radial-gradient(circle at 10% 45%, rgba(6, 78, 59, 0.45) 0%, transparent 55%),
+        radial-gradient(circle at 90% 75%, rgba(14, 116, 144, 0.3) 0%, transparent 60%),
+        radial-gradient(circle at 50% 95%, rgba(45, 212, 191, 0.15) 0%, transparent 50%),
+        linear-gradient(180deg, #061019 0%, #03080e 100%);
+    }
+
+    /* visionOS / iOS Soft Specular Glass */
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(13, 27, 40, 0.68);
+      backdrop-filter: blur(28px) saturate(210%);
+      -webkit-backdrop-filter: blur(28px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.32),
+        inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
+        0 16px 36px -10px rgba(0, 0, 0, 0.55),
+        0 0 24px -4px rgba(45, 212, 191, 0.1);
+    }
+
+    .glass-pill {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(16, 36, 52, 0.65);
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .glass-button {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%), rgba(20, 39, 58, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-button:active {
+      transform: scale(0.94);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* 3D Main Record Button */
+    .record-btn-3d {
+      background: radial-gradient(circle at 35% 30%, #ff4b4b 0%, #dc2626 55%, #991b1b 100%);
+      box-shadow: 
+        inset 0 2px 4px rgba(255, 255, 255, 0.5),
+        inset 0 -3px 5px rgba(0, 0, 0, 0.6),
+        0 12px 28px -4px rgba(220, 38, 38, 0.55),
+        0 0 45px rgba(239, 68, 68, 0.35);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .record-btn-3d:active {
+      transform: scale(0.92);
+      box-shadow: 
+        inset 0 3px 6px rgba(0, 0, 0, 0.6),
+        0 4px 12px rgba(220, 38, 38, 0.4);
+    }
+
+    /* Acoustic Wave Animation Simulation */
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.18); opacity: 0.25; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-halo {
+      animation: pulseRing 2.6s ease-in-out infinite;
+    }
+
+    /* Tabular Figures for Stopwatches */
+    .tnum {
+      font-feature-settings: "tnum" 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Real-time wave shimmer */
+    .wave-bar {
+      border-radius: 9999px;
+      transition: height 0.15s ease-out;
+    }
+
+    /* Custom scrollbar hide */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="h-full flex items-center justify-center p-0 m-0 bg-black text-slate-100 overflow-hidden">
+
+  <!-- Mobile Viewport Wrapper (Telegram Mini App 390x844 Shell) -->
+  <main class="w-full max-w-[390px] h-[844px] max-h-[100dvh] vision-ambient relative flex flex-col justify-between overflow-hidden shadow-2xl rounded-[44px] border border-white/10">
+
+    <!-- Ambient Top Aura Orb -->
+    <div class="absolute -top-16 left-1/2 -translate-x-1/2 w-72 h-72 bg-teal-400/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-24 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/15 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <!-- Telegram Header / Navigation Glass Dock -->
+    <header class="pt-3 px-4 pb-2 z-20 flex items-center justify-between">
+      <!-- Back / Dismiss -->
+      <button class="w-10 h-10 rounded-full glass-pill flex items-center justify-center text-slate-300 hover:text-white active:scale-95 transition-all" title="Yopish">
+        <span class="material-symbols-rounded text-[21px]">close</span>
+      </button>
+
+      <!-- Center Status Pill -->
+      <div class="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-2 border border-white/20">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+        </span>
+        <span class="text-[12px] font-semibold tracking-wide text-white font-manrope">8-KUN • JONLI YOZUV</span>
+      </div>
+
+      <!-- Settings / Audio Source -->
+      <button class="w-10 h-10 rounded-full glass-pill flex items-center justify-center text-slate-300 hover:text-white active:scale-95 transition-all" title="Audio sozlamalar">
+        <span class="material-symbols-rounded text-[20px]">mic</span>
+      </button>
+    </header>
+
+    <!-- Scrollable Studio Content -->
+    <div class="flex-1 px-4 py-1 flex flex-col justify-between overflow-y-auto no-scrollbar z-10 gap-3">
+
+      <!-- TOP SECTION: Digital Timer & Pacing Metric -->
+      <section class="flex flex-col items-center text-center mt-1">
+        <!-- 3D Digital Time Display -->
+        <div class="flex items-baseline justify-center gap-1.5">
+          <span class="font-manrope font-bold text-[44px] leading-tight text-white tracking-tight drop-shadow-[0_4px_18px_rgba(45,212,191,0.35)] tnum">
+            00:28
+          </span>
+          <span class="font-manrope font-medium text-[20px] text-teal-300/50 tnum">
+            / 01:00
+          </span>
+        </div>
+
+        <!-- Progress Timeline Glass Bar -->
+        <div class="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden mt-1.5 mb-2.5 p-[1px] border border-white/10 backdrop-blur-md">
+          <div class="h-full bg-gradient-to-r from-teal-400 via-emerald-300 to-teal-200 rounded-full shadow-[0_0_12px_rgba(45,212,191,0.8)]" style="width: 46%;"></div>
+        </div>
+
+        <!-- 3D Pacing Indicator Pill -->
+        <div class="glass-pill px-3 py-1 rounded-full flex items-center gap-2 border border-emerald-400/30 bg-emerald-950/30">
+          <span class="material-symbols-rounded text-emerald-300 text-[16px]">speed</span>
+          <span class="text-[11.5px] font-semibold text-emerald-200">
+            Marom: <span class="text-white font-bold">Me'yorda</span> (120 so'z/daq)
+          </span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+        </div>
+      </section>
+
+      <!-- MIDDLE SECTION 1: 3D Liquid Soundwave Glass Card -->
+      <section class="glass-card rounded-[28px] p-4 relative overflow-hidden">
+        <!-- Specular Highlight Strip at top edge -->
+        <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+
+        <!-- Metric badges above wave -->
+        <div class="flex items-center justify-between text-[11px] font-medium text-slate-300 mb-3 px-1">
+          <div class="flex items-center gap-1.5 text-teal-300">
+            <span class="material-symbols-rounded text-[14px]">graphic_eq</span>
+            <span>Ovoz quvvati: <strong class="text-white font-semibold">-12 dB</strong></span>
+          </div>
+          <div class="glass-pill px-2.5 py-0.5 rounded-full text-[10.5px] text-slate-200 border-white/15">
+            48 kHz • Shovqinsiz
+          </div>
+        </div>
+
+        <!-- 28 Liquid Glass Soundwave Amplitude Bars -->
+        <div class="h-20 w-full flex items-center justify-between gap-[3px] px-1 py-1">
+          <!-- Bars 1 to 28 with realistic voice dynamics & gradient glow -->
+          <div class="w-[5px] bg-gradient-to-t from-teal-500/40 to-teal-300 wave-bar h-6 opacity-70"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500/50 to-teal-300 wave-bar h-9 opacity-85"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-emerald-300 wave-bar h-14 shadow-[0_0_8px_rgba(45,212,191,0.5)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-emerald-300 wave-bar h-18 shadow-[0_0_10px_rgba(45,212,191,0.6)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-cyan-300 wave-bar h-11"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-cyan-300 wave-bar h-7 opacity-80"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500/40 to-teal-200 wave-bar h-5 opacity-60"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-emerald-300 wave-bar h-12 shadow-[0_0_8px_rgba(45,212,191,0.4)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-400 to-emerald-200 wave-bar h-16 shadow-[0_0_12px_rgba(45,212,191,0.7)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-cyan-400 to-teal-200 wave-bar h-20 shadow-[0_0_14px_rgba(45,212,191,0.8)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-400 to-emerald-200 wave-bar h-15 shadow-[0_0_10px_rgba(45,212,191,0.6)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-cyan-300 wave-bar h-9 opacity-85"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500/50 to-teal-200 wave-bar h-6 opacity-70"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-400 to-emerald-200 wave-bar h-13 shadow-[0_0_8px_rgba(45,212,191,0.5)]"></div>
+          
+          <!-- Current voice active peak point -->
+          <div class="w-[5px] bg-gradient-to-t from-teal-300 to-white wave-bar h-20 shadow-[0_0_16px_rgba(255,255,255,0.9)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-400 to-emerald-200 wave-bar h-17 shadow-[0_0_12px_rgba(45,212,191,0.7)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-cyan-300 wave-bar h-11"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500/50 to-teal-200 wave-bar h-7 opacity-75"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-emerald-300 wave-bar h-14 shadow-[0_0_8px_rgba(45,212,191,0.5)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-400 to-emerald-200 wave-bar h-19 shadow-[0_0_12px_rgba(45,212,191,0.8)]"></div>
+          <div class="w-[5px] bg-gradient-to-t from-teal-500 to-cyan-300 wave-bar h-12 shadow-[0_0_8px_rgba(45,212,191,0.4)]"></div>
+
+          <!-- Pending live silence / unrecorded forecast bars -->
+          <div class="w-[5px] bg-white/20 wave-bar h-4 rounded-full"></div>
+          <div class="w-[5px] bg-white/20 wave-bar h-4 rounded-full"></div>
+          <div class="w-[5px] bg-white/15 wave-bar h-3 rounded-full"></div>
+          <div class="w-[5px] bg-white/15 wave-bar h-3 rounded-full"></div>
+          <div class="w-[5px] bg-white/10 wave-bar h-2 rounded-full"></div>
+          <div class="w-[5px] bg-white/10 wave-bar h-2 rounded-full"></div>
+          <div class="w-[5px] bg-white/10 wave-bar h-2 rounded-full"></div>
+        </div>
+
+        <!-- Footer status of waveform -->
+        <div class="flex items-center justify-between mt-2 pt-2 border-t border-white/10 text-[11px]">
+          <span class="text-slate-400 flex items-center gap-1.5">
+            <span class="material-symbols-rounded text-teal-400 text-[14px]">psychology</span>
+            AI: Parazit pauzalar qayd etilmadi
+          </span>
+          <span class="text-emerald-400 font-semibold flex items-center gap-1">
+            <span class="material-symbols-rounded text-[13px]">check_circle</span>
+            Toza ohang
+          </span>
+        </div>
+      </section>
+
+      <!-- MIDDLE SECTION 2: 3D Glass Teleprompter & NNQ Model Guidance -->
+      <section class="glass-card rounded-[26px] p-3.5 relative">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-lg bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300">
+              <span class="material-symbols-rounded text-[15px]">tips_and_updates</span>
+            </div>
+            <span class="text-[12.5px] font-bold text-white font-manrope">NNQ Qolipi • Nutq Rejasi</span>
+          </div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-teal-300/80 glass-pill px-2 py-0.5 rounded-full">
+            Jonli Ko'rsatma
+          </span>
+        </div>
+
+        <!-- 3 Step Interactive Teleprompter Stack -->
+        <div class="flex flex-col gap-2">
+          <!-- Step 1: Active glowing glass card -->
+          <div class="p-2.5 rounded-xl bg-gradient-to-r from-teal-900/40 via-teal-800/30 to-slate-900/40 border border-teal-400/50 shadow-[0_0_16px_rgba(20,184,166,0.2)] relative overflow-hidden">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-300 to-emerald-400"></div>
+            <div class="flex items-start justify-between pl-1">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10.5px] font-bold text-teal-200 tracking-wide uppercase">1. NIYAT (Ayni damda)</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+                </div>
+                <p class="text-[12.5px] font-semibold text-white mt-0.5">
+                  «Loyihamizning bosh maqsadi nima?»
+                </p>
+                <p class="text-[11px] text-teal-200/70 mt-0.5 leading-snug">
+                  Nega aynan bu tashabbus kerakligini 1 jumla bilan ayting.
+                </p>
+              </div>
+              <span class="material-symbols-rounded text-teal-300 text-[18px]">record_voice_over</span>
+            </div>
+          </div>
+
+          <!-- Step 2: Next step preview -->
+          <div class="p-2 rounded-xl bg-white/[0.03] border border-white/10 opacity-70 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-white/10 text-white font-manrope font-bold text-[10px] flex items-center justify-center">2</span>
+              <div>
+                <span class="text-[11px] font-semibold text-slate-300">Natija:</span>
+                <span class="text-[11px] text-slate-400 ml-1">«Jamoa va mijozga qanday samara beradi?»</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-500 font-mono">00:35 dan</span>
+          </div>
+
+          <!-- Step 3: Closing Call-To-Action step -->
+          <div class="p-2 rounded-xl bg-white/[0.03] border border-white/10 opacity-60 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-white/10 text-white font-manrope font-bold text-[10px] flex items-center justify-center">3</span>
+              <div>
+                <span class="text-[11px] font-semibold text-slate-300">Qadam:</span>
+                <span class="text-[11px] text-slate-400 ml-1">«Bugun aynan qaysi amaliy ishni boshlaymiz?»</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-500 font-mono">00:50 dan</span>
+          </div>
+        </div>
+
+        <!-- Pro Tip Footer -->
+        <div class="mt-2.5 flex items-center gap-1.5 text-[10.5px] text-teal-300/80 px-1">
+          <span class="material-symbols-rounded text-[13px] text-teal-400">spa</span>
+          <span>Shoshilmang: fikrlar oralig'ida 1 soniya vazmin sukut saqlang.</span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- BOTTOM SECTION: Tactile 3D Studio Recording Console -->
+    <footer class="px-5 pt-3 pb-7 z-20 flex flex-col items-center relative">
+      
+      <!-- Primary 3-Button Tactile Studio Bar -->
+      <div class="w-full flex items-center justify-around max-w-[340px] mb-3.5">
+
+        <!-- Left: Pause / Resume Button -->
+        <div class="flex flex-col items-center gap-1">
+          <button class="w-13 h-13 w-[52px] h-[52px] rounded-full glass-button flex items-center justify-center text-slate-200 hover:text-white" title="Pauza qilish">
+            <span class="material-symbols-rounded text-[24px]">pause</span>
+          </button>
+          <span class="text-[11px] font-medium text-slate-400">Pauza</span>
+        </div>
+
+        <!-- Center: 76px Tactile 3D Circular Record Trigger Button with Acoustic Pulse Rings -->
+        <div class="relative flex items-center justify-center">
+          <!-- Acoustic Pulse Halo Rings -->
+          <div class="absolute w-24 h-24 rounded-full bg-rose-500/20 pulse-halo pointer-events-none"></div>
+          <div class="absolute w-28 h-28 rounded-full bg-teal-400/15 pulse-halo pointer-events-none" style="animation-delay: 0.8s;"></div>
+
+          <!-- Main 3D Stop/Record Action Button -->
+          <button class="relative z-10 w-[76px] h-[76px] rounded-full record-btn-3d flex items-center justify-center cursor-pointer group" title="Yozuvni to'xtatish">
+            <div class="w-7 h-7 rounded-[7px] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.4)] group-hover:scale-95 transition-transform flex items-center justify-center">
+              <div class="w-2.5 h-2.5 rounded-[2px] bg-rose-600"></div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Right: Re-record / Restart Button -->
+        <div class="flex flex-col items-center gap-1">
+          <button class="w-[52px] h-[52px] rounded-full glass-button flex items-center justify-center text-slate-200 hover:text-white" title="Qaytadan boshlash">
+            <span class="material-symbols-rounded text-[22px]">replay</span>
+          </button>
+          <span class="text-[11px] font-medium text-slate-400">Qaytadan</span>
+        </div>
+      </div>
+
+      <!-- Finish & Send to AI Analysis CTA Pill -->
+      <button class="w-full h-12 rounded-full bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-400 text-slate-950 font-manrope font-bold text-[13.5px] tracking-wide flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(20,184,166,0.45)] hover:shadow-[0_10px_28px_rgba(20,184,166,0.6)] active:scale-[0.98] transition-all">
+        <span>Yozuvni yakunlash va AI tahlil</span>
+        <span class="material-symbols-rounded text-[18px]">arrow_forward</span>
+      </button>
+
+      <!-- Telegram indicator bar -->
+      <div class="w-32 h-1 bg-white/20 rounded-full mt-3"></div>
+    </footer>
+
+  </main>
+
+</body>
+</html>

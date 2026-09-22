@@ -43,7 +43,10 @@ const App = {
         this.render('onboarding', {}, false);
       } else {
         this.rebuildWorkout(this.user.progress.currentDay);
-        this.render('home', {}, false);
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialScreen = urlParams.get('screen') || 'home';
+        const dayParam = Number(urlParams.get('day') || this.user.progress.currentDay || 8);
+        this.render(initialScreen, { day: dayParam }, false);
       }
     } catch (error) {
       this.closeLoading();
