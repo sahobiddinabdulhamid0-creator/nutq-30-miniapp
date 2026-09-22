@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Nutq 30 • Kutubxona va Iboralar Banki</title>
+<!-- Google Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom configuration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-error": "#ffffff",
+            "on-primary": "#ffffff",
+            "tertiary-container": "#0c5b56",
+            "surface-variant": "#dae2fd",
+            "primary": "#00433d",
+            "secondary-container": "#fdb965",
+            "on-secondary": "#ffffff",
+            "on-secondary-container": "#754900",
+            "tertiary-fixed": "#abefe8",
+            "inverse-surface": "#2f3035",
+            "outline-variant": "#bdc9c6",
+            "primary-container": "#0f766e",
+            "surface-container-highest": "#dae2fd",
+            "on-secondary-fixed": "#2a1700",
+            "on-primary-fixed": "#00201d",
+            "on-tertiary-fixed-variant": "#00504b",
+            "inverse-on-surface": "#eef0ff",
+            "primary-fixed-dim": "#8cd4ca",
+            "on-primary-container": "#a3faef",
+            "secondary-fixed": "#ffddb8",
+            "inverse-primary": "#8cd4ca",
+            "on-surface": "#131b2e",
+            "primary-fixed": "#9cf2e8",
+            "tertiary": "#00423e",
+            "surface-dim": "#dbd9e0",
+            "error-container": "#ffdad6",
+            "surface": "#faf8ff",
+            "on-error-container": "#93000a",
+            "surface-bright": "#faf8ff",
+            "surface-container-high": "#e9e7ee",
+            "on-tertiary": "#ffffff",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-background": "#131b2e",
+            "on-tertiary-fixed": "#00201e",
+            "surface-container-lowest": "#ffffff",
+            "on-surface-variant": "#3e4947",
+            "on-tertiary-container": "#b3f7f0",
+            "secondary-fixed-dim": "#ffb95f",
+            "background": "#faf8ff",
+            "error": "#ba1a1a",
+            "surface-container": "#eaedff",
+            "secondary": "#855300",
+            "surface-tint": "#1a6962",
+            "on-primary-fixed-variant": "#00504a",
+            "surface-container-low": "#f4f3fa",
+            "outline": "#6e7977",
+            "tertiary-fixed-dim": "#8fd3cc"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-xl": "1.5rem",
+            "space-lg": "1.25rem",
+            "margin": "1rem",
+            "space-sm": "0.5rem",
+            "gutter": "1rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "headline-lg": ["Manrope"],
+            "body-md": ["Inter"],
+            "label-sm": ["Inter"],
+            "title-md": ["Manrope"],
+            "label-md": ["Inter"],
+            "metric-timer": ["Inter"],
+            "headline-xl": ["Manrope"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-md": ["Manrope"]
+          },
+          "fontSize": {
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "title-md": ["17px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "metric-timer": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Custom Scrollbar for chips container */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    /* Safe padding for bottom navigation bar */
+    .pb-safe-nav {
+      padding-bottom: calc(env(safe-area-inset-bottom, 24px) + 76px);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed font-body-md min-h-screen flex justify-center">
+<!-- Mobile Viewport Container (Telegram Mini App 390px baseline / max 480px) -->
+<div class="w-full max-w-[480px] min-h-screen flex flex-col bg-background relative shadow-sm border-x border-outline-variant/20">
+<!-- 1. Top Telegram App Bar (Shared Components JSON Anchor) -->
+<header class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md shadow-sm">
+<div class="flex justify-between items-center w-full max-w-[480px] mx-auto px-4 h-12">
+<button aria-label="Yopish" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-[0.98] text-on-surface transition-colors duration-150" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-md text-title-md font-bold tracking-tight text-on-surface">Nutq 30</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span class="font-label-md text-label-md font-medium text-outline">Lug'at</span>
+</div>
+<button aria-label="Qo'shimcha" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-[0.98] text-on-surface transition-colors duration-150" type="button">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Main Content Stream -->
+<main class="flex-1 px-4 pt-3 pb-safe-nav space-y-5 overflow-y-auto">
+<!-- 2. Header & Search Input -->
+<section class="space-y-3">
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">Bilimlar va Iboralar Banki</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Nutqni boyituvchi qoliplar, oltin iboralar va ovoz mashqlari</p>
+</div>
+<!-- Search Bar with quick filter trigger -->
+<div class="relative flex items-center">
+<div class="absolute left-3.5 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full h-12 pl-10 pr-12 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-0 transition-colors shadow-sm" placeholder="Qoliplar va iboralarni qidirish..." type="search"/>
+<button aria-label="Filtrlar" class="absolute right-2.5 w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-low active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+</section>
+<!-- 3. Horizontal Category Filter Chips (scrollable) -->
+<section class="-mx-4 px-4 overflow-x-auto no-scrollbar flex items-center gap-2 py-0.5">
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md font-medium shadow-sm active:scale-95 transition-all" type="button">
+          Barchasi
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface-variant font-label-md text-label-md hover:border-primary-container/40 active:scale-95 transition-all" type="button">
+          Kirish jumlalari
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface-variant font-label-md text-label-md hover:border-primary-container/40 active:scale-95 transition-all" type="button">
+          Ishontirish va dalil
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface-variant font-label-md text-label-md hover:border-primary-container/40 active:scale-95 transition-all" type="button">
+          Sokin pauza
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface-variant font-label-md text-label-md hover:border-primary-container/40 active:scale-95 transition-all" type="button">
+          Diktsiya mashqlari
+        </button>
+<button class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant/60 text-on-surface-variant font-label-md text-label-md hover:border-primary-container/40 active:scale-95 transition-all" type="button">
+          Hikoya (Storytelling)
+        </button>
+</section>
+<!-- 4. Bugungi Maxsus Qolip (Featured Speech Formula - Hero Card) -->
+<section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/50 p-4 shadow-[0_2px_12px_-2px_rgba(15,23,42,0.05)] relative overflow-hidden space-y-3.5">
+<!-- Subtle ambient radial tint -->
+<div class="absolute -right-12 -top-12 w-32 h-32 bg-primary-fixed/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<!-- Amber Chip Badge -->
+<div class="inline-flex items-center gap-1.5 bg-secondary-fixed/40 text-on-secondary-container px-2.5 py-1 rounded-full border border-secondary-container/30">
+<span class="material-symbols-outlined text-[14px] text-secondary">star</span>
+<span class="font-label-md text-label-sm font-semibold uppercase tracking-wider">Haftalik tavsiya</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="font-label-sm text-label-sm">Murabbiy tavsiyasi</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-md text-title-md font-bold text-on-surface">Kontrast Usuli (Oldin vs Hozir)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Tinglovchida qadriyat hissini uyg'otuvchi klassik notiqlik strukturasi</p>
+</div>
+<!-- Quote Block in Italicized high-contrast styling -->
+<div class="bg-surface-container-low/70 rounded-xl p-3.5 border-l-4 border-primary-container">
+<p class="font-body-md text-body-md text-on-surface italic leading-relaxed">
+            «Avval biz loyihamiz faqat mutaxassislar uchun deb o'ylardik, <span class="font-semibold text-primary underline decoration-primary/30 underline-offset-2">ammo</span> bugungi natijalar har bir odam undan naf olayotganini ko'rsatdi.»
+          </p>
+</div>
+<!-- Formula Schema Breakdown -->
+<div class="bg-surface rounded-xl p-2.5 border border-outline-variant/40 space-y-1.5">
+<div class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Qolip mantig'i:</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-md text-label-sm gap-1">
+<span class="bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/30 font-medium">1. Oldingi tasavvur</span>
+<span class="material-symbols-outlined text-primary-container text-[16px]">arrow_forward</span>
+<span class="bg-secondary-fixed/30 text-on-secondary-container px-2 py-1 rounded border border-secondary-fixed font-semibold">"ammo"</span>
+<span class="material-symbols-outlined text-primary-container text-[16px]">arrow_forward</span>
+<span class="bg-primary-fixed/30 text-primary px-2 py-1 rounded border border-primary-fixed-dim/40 font-medium">2. Yangi haqiqat</span>
+</div>
+</div>
+<!-- Mini Audio Player -->
+<div class="flex items-center justify-between pt-1 border-t border-outline-variant/30">
+<div class="flex items-center gap-3">
+<button aria-label="Audioni tinglash" class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center hover:bg-primary active:scale-95 transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span>
+</button>
+<div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">Murabbiy audio namunasi</div>
+<div class="font-label-sm text-label-sm text-outline">0:15 davomiylik • Ravon ohang</div>
+</div>
+</div>
+<!-- Waveform visual placeholder & Bookmark -->
+<div class="flex items-center gap-3">
+<div class="hidden sm:flex items-end gap-0.5 h-5">
+<span class="w-1 bg-primary-container h-2 rounded-full"></span>
+<span class="w-1 bg-primary-container h-4 rounded-full"></span>
+<span class="w-1 bg-primary-container h-5 rounded-full"></span>
+<span class="w-1 bg-primary-container h-3 rounded-full"></span>
+<span class="w-1 bg-outline-variant h-2 rounded-full"></span>
+<span class="w-1 bg-outline-variant h-3 rounded-full"></span>
+</div>
+<button aria-label="Saqlash" class="w-9 h-9 rounded-full flex items-center justify-center text-outline hover:text-primary active:scale-90 transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]">bookmark_border</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 5. Qolip Iboralar Kartalari (Categorized Power Phrase Flashcards) -->
+<section class="space-y-3">
+<div class="flex items-end justify-between">
+<div>
+<h2 class="font-headline-md text-title-md font-bold text-on-surface">Nutqni kuchaytiruvchi oltin iboralar</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Kundalik muloqot va taqdimotlar uchun tayyor iboralar</p>
+</div>
+<span class="font-label-md text-label-sm font-semibold text-primary-container">3 ta yangi</span>
+</div>
+<!-- Flashcard 1 -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] space-y-3">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed/40 text-primary font-label-md text-label-sm font-semibold border border-primary-fixed-dim/30">
+              Kuchli Kirish
+            </span>
+<span class="font-label-sm text-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 0:12
+            </span>
+</div>
+<p class="font-title-md text-[15px] font-semibold text-on-surface leading-snug">
+            «Agar sizga atigi 30 kun ichida notiq bo'lish va hayajonni jilovlash siri haqida aytsam, bunga ishonarmidingiz?»
+          </p>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary-container">lightbulb</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Auditoriya diqqatini birinchi 5 soniyada jalb qilish</span>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+<button class="inline-flex items-center gap-1.5 text-primary-container hover:text-primary font-label-md text-label-md font-semibold active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+<span>Namunani eshitish</span>
+</button>
+<div class="flex items-center gap-1">
+<button aria-label="Nusxa olish" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-on-surface active:scale-95 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button aria-label="Saqlash" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-primary active:scale-95 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Flashcard 2 -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] space-y-3">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed/40 text-on-secondary-container font-label-md text-label-sm font-semibold border border-secondary-container/30">
+              Mantiqiy O'tish va Pauza
+            </span>
+<span class="font-label-sm text-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 0:09
+            </span>
+</div>
+<p class="font-title-md text-[15px] font-semibold text-on-surface leading-snug">
+            «Eng muhim burilish nuqtasi esa... <span class="text-secondary bg-secondary-fixed/30 px-1.5 py-0.5 rounded text-[13px] font-medium">[2 soniya vazmin sukut]</span> aynan mana bu yerda yashiringan.»
+          </p>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary-container">lightbulb</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Fikrga alohida urg'u berish va tinglovchini hushyor torttirish</span>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+<button class="inline-flex items-center gap-1.5 text-primary-container hover:text-primary font-label-md text-label-md font-semibold active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+<span>Namunani eshitish</span>
+</button>
+<div class="flex items-center gap-1">
+<button aria-label="Nusxa olish" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-on-surface active:scale-95 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button aria-label="Saqlash" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-primary active:scale-95 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Flashcard 3 -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 shadow-[0_1px_4px_rgba(15,23,42,0.03)] space-y-3">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-primary font-label-md text-label-sm font-semibold border border-outline-variant/30">
+              E'tirozni Yumshatish
+            </span>
+<span class="font-label-sm text-label-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 0:14
+            </span>
+</div>
+<p class="font-title-md text-[15px] font-semibold text-on-surface leading-snug">
+            «Fikringizga to'liq qo'shilaman va e'tirozingiz o'rinli, shu bilan birga keling masalaga boshqa tomondan qarasak...»
+          </p>
+<div class="flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary-container">lightbulb</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Nizo chiqarmasdan suhbatdoshni o'z tomoningizga og'dirish</span>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between">
+<button class="inline-flex items-center gap-1.5 text-primary-container hover:text-primary font-label-md text-label-md font-semibold active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+<span>Namunani eshitish</span>
+</button>
+<div class="flex items-center gap-1">
+<button aria-label="Nusxa olish" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-on-surface active:scale-95 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+</button>
+<button aria-label="Saqlash" class="w-8 h-8 flex items-center justify-center rounded-lg text-outline hover:text-primary active:scale-95 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+</button>
+</div>
+</div>
+</article>
+</section>
+<!-- 6. 5 Daqiqalik Diktsiya Gimnastikasi & Tez Aytishlar (Vocal Gym) -->
+<section class="bg-primary-fixed/20 rounded-2xl border border-dashed border-primary-container/40 p-4 space-y-3.5">
+<div class="flex items-start justify-between">
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<h2 class="font-headline-md text-title-md font-bold text-on-surface">5 daqiqalik Diktsiya Gimnastikasi</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Artikulyatsiya apparatini bo'shatish va tildagi qotishqoqlikni ketkazish</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold">
+            Tez aytish
+          </span>
+</div>
+<!-- Tongue Twister Box -->
+<div class="bg-surface-container-lowest/90 rounded-xl p-3.5 border border-primary-fixed-dim/40 shadow-sm text-center space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Bugungi mashq:</span>
+<p class="font-headline-md text-title-md font-bold text-primary italic">
+            «Qishda kishmish pishmasmish, pishsa kishmish qishmasmish.»
+          </p>
+</div>
+<!-- Tempo Speed Indicators Grid -->
+<div class="grid grid-cols-3 gap-2 text-center">
+<div class="bg-surface-container-lowest/70 p-2 rounded-lg border border-outline-variant/30">
+<div class="font-label-md text-label-md font-bold text-on-surface">Sekin</div>
+<div class="font-label-sm text-label-sm text-primary-container font-medium">80 so'z/daq</div>
+<div class="font-label-sm text-[10px] text-outline mt-0.5">Aniq talaffuz</div>
+</div>
+<div class="bg-surface-container-lowest/70 p-2 rounded-lg border border-primary-container/30 ring-1 ring-primary-container/20">
+<div class="font-label-md text-label-md font-bold text-primary">O'rtacha</div>
+<div class="font-label-sm text-label-sm text-primary-container font-bold">120 so'z/daq</div>
+<div class="font-label-sm text-[10px] text-outline mt-0.5">Erkin nafasda</div>
+</div>
+<div class="bg-surface-container-lowest/70 p-2 rounded-lg border border-outline-variant/30">
+<div class="font-label-md text-label-md font-bold text-on-surface">Tez</div>
+<div class="font-label-sm text-label-sm text-secondary font-medium">160 so'z/daq</div>
+<div class="font-label-sm text-[10px] text-outline mt-0.5">Yuqori tezlik</div>
+</div>
+</div>
+<!-- CTA Button for Practice -->
+<button class="w-full h-12 rounded-full bg-primary-container hover:bg-primary text-on-primary font-headline-md text-body-md font-semibold flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+<span>Ovozni mashq qilish</span>
+</button>
+</section>
+<!-- Pedagogical Note Banner -->
+<section class="p-3 bg-surface-container-low rounded-xl border border-outline-variant/40 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed/40 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+</div>
+<p class="font-body-sm text-[12px] text-on-surface-variant leading-tight">
+          Har kuni 1 dona qolipni o'zlashtirish 30 kunda nutqingizdagi noaniq so'zlar va to'xtalishlarni 70% ga kamaytiradi.
+        </p>
+</section>
+</main>
+<!-- 7. Fixed Bottom Navigation Bar (Shared Components JSON Anchor) -->
+<!-- Tab 3: "Lug'at" (Kutubxona) is strictly ACTIVE as per Semantic Shell Mandate -->
+<nav aria-label="Asosiy navigatsiya" class="fixed bottom-0 left-0 right-0 w-full max-w-[480px] mx-auto z-50 flex justify-around items-center px-3 pt-2 pb-safe bg-surface-container-lowest/95 backdrop-blur-md rounded-t-xl shadow-[0_-4px_16px_rgba(15,23,42,0.06)]">
+<!-- 1. Darslar -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:text-primary transition-colors duration-150 active:scale-95" href="#darslar">
+<span class="material-symbols-outlined text-[22px]">calendar_today</span>
+<span class="font-label-sm text-label-sm mt-0.5">Darslar</span>
+</a>
+<!-- 2. Mashq -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:text-primary transition-colors duration-150 active:scale-95" href="#mashq">
+<span class="material-symbols-outlined text-[22px]">mic</span>
+<span class="font-label-sm text-label-sm mt-0.5">Mashq</span>
+</a>
+<!-- 3. Lug'at (ACTIVE STATE: style_active_navigation) -->
+<a aria-current="page" class="flex flex-col items-center justify-center text-primary bg-primary-fixed/30 rounded-full px-3 py-1 hover:text-primary transition-colors duration-150 active:scale-95" href="#lugat">
+<span class="material-symbols-outlined text-[22px] fill-icon">menu_book</span>
+<span class="font-label-sm text-label-sm font-semibold mt-0.5">Lug'at</span>
+</a>
+<!-- 4. Profil -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:text-primary transition-colors duration-150 active:scale-95" href="#profil">
+<span class="material-symbols-outlined text-[22px]">person</span>
+<span class="font-label-sm text-label-sm mt-0.5">Profil</span>
+</a>
+</nav>
+</div>
+</body></html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Nutq 30 - Shaxsiy Profil va Nutq Analitikasi</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed": "#abefe8",
+            "on-tertiary": "#ffffff",
+            "surface-container-highest": "#e3e1e8",
+            "tertiary-fixed-dim": "#8fd3cc",
+            "on-background": "#1a1b20",
+            "surface-tint": "#1a6962",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-primary": "#ffffff",
+            "secondary-container": "#fea619",
+            "on-primary-container": "#a3faef",
+            "on-surface": "#1a1b20",
+            "on-tertiary-fixed-variant": "#00504b",
+            "surface-bright": "#faf8ff",
+            "primary-container": "#005c55",
+            "tertiary-container": "#0c5b56",
+            "inverse-on-surface": "#f2f0f7",
+            "surface-container-high": "#e9e7ee",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-container": "#684000",
+            "inverse-primary": "#8cd4ca",
+            "outline-variant": "#bec9c6",
+            "inverse-surface": "#2f3035",
+            "surface-dim": "#d2d9f4",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a",
+            "secondary-fixed-dim": "#ffb95f",
+            "primary-fixed-dim": "#8cd4ca",
+            "on-primary-fixed-variant": "#00504a",
+            "outline": "#6e7977",
+            "secondary-fixed": "#ffddb8",
+            "primary": "#00433d",
+            "surface-variant": "#e3e1e8",
+            "on-tertiary-container": "#8dd0ca",
+            "surface-container-low": "#f4f3fa",
+            "surface-container": "#eaedff",
+            "on-primary-fixed": "#00201d",
+            "background": "#faf8ff",
+            "on-tertiary-fixed": "#00201e",
+            "secondary": "#855300",
+            "on-surface-variant": "#3f4947",
+            "primary-fixed": "#a7f0e6",
+            "error": "#ba1a1a",
+            "on-secondary": "#ffffff",
+            "on-secondary-fixed": "#2a1700",
+            "tertiary": "#00423e",
+            "surface": "#faf8ff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.25rem",
+            "space-xl": "1.5rem",
+            "margin": "1rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "title-md": ["Manrope", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"],
+            "metric-timer": ["Inter", "sans-serif"],
+            "headline-md": ["Manrope", "sans-serif"],
+            "headline-lg": ["Manrope", "sans-serif"],
+            "headline-xl": ["Manrope", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "label-md": ["Inter", "sans-serif"],
+            "label-sm": ["Inter", "sans-serif"]
+          },
+          "fontSize": {
+            "title-md": ["17px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "metric-timer": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Telegram safe area padding */
+    .pb-safe {
+      padding-bottom: max(env(safe-area-inset-bottom, 20px), 16px);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex justify-center selection:bg-primary-fixed selection:text-primary">
+<!-- Mobile Viewport Container: Max 480px, strictly calibrated for 390x844px Telegram Mini App viewports -->
+<div class="w-full max-w-[480px] bg-background min-h-screen flex flex-col relative pb-32">
+<!-- 1. Top Telegram Bar (Using Shared TopAppBar Anchor Specs) -->
+<header class="bg-surface sticky top-0 z-40 shadow-sm border-b border-outline-variant/30">
+<div class="flex justify-between items-center w-full max-w-[480px] mx-auto px-4 h-12">
+<button aria-label="Yopish" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-150 active:scale-[0.98] text-on-surface">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+<div class="flex items-center space-x-1.5">
+<span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">Nutq 30</span>
+<span class="text-outline-variant font-body-sm text-body-sm">•</span>
+<span class="font-title-md text-title-md text-primary font-semibold">Profil</span>
+</div>
+<button aria-label="Ko'proq sozlamalar" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors duration-150 active:scale-[0.98] text-on-surface">
+<span class="material-symbols-outlined text-[22px]">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Main Content Container with pedagogical calm rhythm -->
+<main class="px-4 pt-4 flex flex-col space-y-4">
+<!-- 2. User Identity Card (Zen Glass Card, Level 1 elevation) -->
+<section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-4 shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.04)]">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3.5">
+<!-- Circular Avatar with subtle deep teal container -->
+<div class="relative">
+<div class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline-md text-headline-md font-bold ring-2 ring-primary-fixed/40">
+                JA
+              </div>
+<div class="absolute -bottom-1 -right-1 bg-surface-container-lowest p-0.5 rounded-full">
+<span class="material-symbols-outlined text-primary-container text-[16px] block" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="flex flex-col">
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface leading-tight">Jasur Abdukhamidov</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant font-medium">@jasur_speaks</p>
+</div>
+</div>
+<button aria-label="Profilni tahrirlash" class="text-on-surface-variant hover:text-primary p-1.5 rounded-full hover:bg-surface-container-low transition-colors duration-150">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+<!-- Status Badge -->
+<div class="mt-3.5 pt-3 border-t border-outline-variant/20 flex flex-col space-y-2">
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-primary-fixed/30 text-primary-container font-label-md text-label-md">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">hotel_class</span>
+<span>Notiq darajasi: 8-kun sayohatida</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-medium">27% yakunlandi</span>
+</div>
+<!-- Micro Progress Bar -->
+<div class="w-full space-y-1">
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 27%;"></div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center space-x-1">
+<span class="font-medium text-primary">2-modul:</span>
+<span>Tuzilma va Mantiq bosqichida</span>
+</p>
+</div>
+</div>
+</section>
+<!-- 3. 3-Column Summary Stat Metrics (Bento-like, tabular timer clarity) -->
+<section class="grid grid-cols-3 gap-2.5">
+<!-- Metric 1: Streak -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-3 flex flex-col justify-between shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.03)]">
+<div class="flex items-center space-x-1 text-secondary">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">Seriya</span>
+</div>
+<div class="mt-1">
+<div class="font-metric-timer text-metric-timer text-on-surface font-bold leading-none tracking-tight">8 kun</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 leading-snug">Uzluksiz intizom</p>
+</div>
+</div>
+<!-- Metric 2: Average Score -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-3 flex flex-col justify-between shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.03)]">
+<div class="flex items-center space-x-1 text-primary">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">Baholash</span>
+</div>
+<div class="mt-1">
+<div class="font-metric-timer text-metric-timer text-on-surface font-bold leading-none tracking-tight">82<span class="font-body-sm text-body-sm text-outline-variant font-normal">/100</span></div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 leading-snug">O'rtacha natija</p>
+</div>
+</div>
+<!-- Metric 3: Growth -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-3 flex flex-col justify-between shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.03)]">
+<div class="flex items-center space-x-1 text-tertiary-container">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+<span class="font-label-sm text-label-sm text-outline uppercase font-semibold">O'sish</span>
+</div>
+<div class="mt-1">
+<div class="font-metric-timer text-metric-timer text-primary font-bold leading-none tracking-tight">+18%</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 leading-snug">Dinamika</p>
+</div>
+</div>
+</section>
+<!-- 4. 5-Core Speech Skills Progress ("5 Asosiy Ko'nikma Rivojlanishi") -->
+<section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-4 shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.04)] space-y-3.5">
+<div class="flex flex-col">
+<div class="flex items-center justify-between">
+<h2 class="font-title-md text-title-md font-bold text-on-surface">5 Asosiy Ko'nikma Rivoji</h2>
+<span class="font-label-sm text-label-sm text-primary font-medium px-2 py-0.5 bg-primary-fixed/20 rounded-full">AI Tahlili</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Xalqaro notiqlik mezonlari va 8 kunlik tahlil asosida</p>
+</div>
+<div class="space-y-3 pt-1">
+<!-- Skill 1: Ravonlik va temp -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="font-medium text-on-surface">1. Ravonlik va nutq tempi</span>
+<span class="font-semibold text-primary">84% <span class="font-normal text-on-surface-variant font-label-sm">• 122 so'z/daq</span></span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 84%;"></div>
+</div>
+</div>
+<!-- Skill 2: Parazit so'zlar nazorati -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="font-medium text-on-surface">2. Parazit so'zlar nazorati</span>
+<span class="font-semibold text-primary">88% <span class="text-tertiary font-label-sm font-medium">+32% toza</span></span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 88%;"></div>
+</div>
+</div>
+<!-- Skill 3: Nutq tuzilmasi (NNQ & FSMX) -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="font-medium text-on-surface">3. Nutq tuzilmasi (NNQ &amp; FSMX)</span>
+<span class="font-semibold text-primary">80% <span class="font-normal text-on-surface-variant font-label-sm">• Barqaror</span></span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 80%;"></div>
+</div>
+</div>
+<!-- Skill 4: Talaffuz va intonatsiya -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="font-medium text-on-surface">4. Talaffuz va diktsiya</span>
+<span class="font-semibold text-primary">82% <span class="font-normal text-on-surface-variant font-label-sm">• Aniq artikulyatsiya</span></span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-500" style="width: 82%;"></div>
+</div>
+</div>
+<!-- Skill 5: Ishontirish kuchi -->
+<div class="space-y-1">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="font-medium text-on-surface">5. Ishontirish va emotsiya</span>
+<span class="font-semibold text-secondary">76% <span class="font-normal text-on-surface-variant font-label-sm">• Rivojlanmoqda</span></span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full transition-all duration-500" style="width: 76%;"></div>
+</div>
+</div>
+</div>
+<!-- Pedagogical Insight Banner -->
+<div class="mt-2.5 p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-start space-x-2">
+<span class="material-symbols-outlined text-primary-container text-[18px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">insights</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+<strong class="text-on-surface font-semibold">Murabbiy xulosasi:</strong> Eng katta sakrash parazit pauzalarni daqiqasiga 4 tadan 1 tagacha kamaytirish hisobiga sodir bo'ldi.
+          </p>
+</div>
+</section>
+<!-- 5. Recordings Archive & Privacy Vault ("Shaxsiy Yozuvlar Arxivi") -->
+<section class="space-y-2.5">
+<div class="flex items-center justify-between px-1">
+<h2 class="font-title-md text-title-md font-bold text-on-surface">Yozuvlar Arxivi (8 ta)</h2>
+<button class="font-label-md text-label-md text-primary font-semibold hover:underline">Barchasi</button>
+</div>
+<!-- Recent Recording Audio Card (Level 2 Elevation) -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-3.5 shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.04)] space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2.5">
+<button aria-label="Yozuvni eshitish" class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:opacity-90 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<div>
+<p class="font-title-md text-title-md text-on-surface font-semibold text-[15px] leading-tight">8-kun: NNQ amaliyoti</p>
+<p class="font-label-sm text-label-sm text-outline">Bugun • 0:52 soniya</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-fixed/30 text-on-tertiary-fixed-variant font-label-md text-label-md font-bold">
+              86 ball
+            </span>
+</div>
+<!-- Waveform Visualization (Stylized pedagogical acoustic bars) -->
+<div class="bg-surface-container-low p-2 rounded-xl flex items-center justify-between h-9 px-3 gap-0.5">
+<div class="w-1 h-3 bg-primary-container rounded-full"></div>
+<div class="w-1 h-5 bg-primary-container rounded-full"></div>
+<div class="w-1 h-6 bg-primary-container rounded-full"></div>
+<div class="w-1 h-4 bg-primary-container rounded-full"></div>
+<div class="w-1 h-7 bg-primary-container rounded-full"></div>
+<div class="w-1 h-8 bg-primary-container rounded-full"></div>
+<div class="w-1 h-5 bg-primary-container rounded-full"></div>
+<div class="w-1 h-7 bg-primary-container rounded-full"></div>
+<div class="w-1 h-6 bg-primary-container rounded-full"></div>
+<div class="w-1 h-3 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-5 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-7 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-4 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-6 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-8 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-5 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-3 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-4 bg-outline-variant/60 rounded-full"></div>
+<div class="w-1 h-2 bg-outline-variant/60 rounded-full"></div>
+</div>
+<!-- Action Row -->
+<div class="flex items-center justify-between pt-1 border-t border-outline-variant/20 font-label-md text-label-md">
+<div class="flex items-center space-x-3">
+<button class="text-primary font-semibold hover:opacity-80 flex items-center space-x-1">
+<span class="material-symbols-outlined text-[16px]">headphones</span>
+<span>Eshitish</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface font-medium flex items-center space-x-1">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+<span>Qayta tahlil</span>
+</button>
+</div>
+<button class="text-outline hover:text-error transition-colors flex items-center space-x-0.5">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+<span>O'chirish</span>
+</button>
+</div>
+</div>
+<!-- Privacy Shield Callout Box -->
+<div class="rounded-xl bg-primary-fixed/15 border border-primary-fixed/40 p-3 flex items-start space-x-2.5">
+<span class="material-symbols-outlined text-primary-container text-[20px] shrink-0" style="font-variation-settings: 'FILL' 1;">shield</span>
+<div class="space-y-0.5">
+<h4 class="font-label-md text-label-md font-bold text-primary-container">Maxfiylik va Shaxsiy Kafolat</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">
+              Barcha audio yozuvlar faqat sizning shaxsiy amaliyotingiz uchun xavfsiz shifrlangan. Uchinchi shaxslarga berilmaydi va istalgan daqiqada butunlay o'chirib tashlanishi mumkin.
+            </p>
+</div>
+</div>
+</section>
+<!-- 6. Practice Preferences & Settings ("Mashq Sozlamalari") -->
+<section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/40 p-4 shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.04)] space-y-3">
+<h2 class="font-title-md text-title-md font-bold text-on-surface">Mashq Sozlamalari</h2>
+<div class="divide-y divide-outline-variant/20">
+<!-- Setting 1: Daily Reminder -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="pr-2">
+<p class="font-body-md text-body-md font-medium text-on-surface">Kunlik Telegram eslatmasi</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Har kuni soat 20:00 da bot orqali</p>
+</div>
+<!-- Custom Toggle: Active -->
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<!-- Setting 2: Practice Mode -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="pr-2">
+<p class="font-body-md text-body-md font-medium text-on-surface">Mashg'ulot rejimi</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Faqat audio mashqlar (engil rejim)</p>
+</div>
+<button class="font-label-md text-label-md text-primary font-semibold flex items-center">
+              O'zgartirish
+              <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+<!-- Setting 3: Instant AI Coach Feedback -->
+<div class="py-2.5 flex items-center justify-between">
+<div class="pr-2">
+<p class="font-body-md text-body-md font-medium text-on-surface">Murabbiy AI tavsiyalari</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Har bir audio yuklangandan so'ng darhol</p>
+</div>
+<!-- Custom Toggle: Active -->
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Supportive Pedagogical Signoff -->
+<div class="text-center py-2">
+<p class="font-label-sm text-label-sm text-outline">Nutq 30 • 30 kunlik intensiv diktsiya va mantiqiy nutq dasturi</p>
+</div>
+</main>
+<!-- 7. Shared Component: Bottom Navigation Bar (Docked Bottom, Label-Icon, 4 Destinations) -->
+<!-- Executing JSON Blueprint for BottomNavBar with Semantic Active State: "Profil" is Active -->
+<nav class="fixed bottom-0 left-0 right-0 w-full max-w-[480px] mx-auto z-50 flex justify-around items-center px-3 pt-2 pb-safe bg-surface-container-lowest/95 dark:bg-inverse-surface/95 backdrop-blur-md rounded-t-xl shadow-[0_-4px_16px_rgba(15,23,42,0.06)] dark:shadow-none border-t border-outline-variant/40 dark:border-outline/20">
+<!-- Tab 1: Darslar -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:text-primary dark:hover:text-primary-fixed transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]">calendar_today</span>
+<span class="font-label-sm text-label-sm mt-0.5">Darslar</span>
+</a>
+<!-- Tab 2: Mashq -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:text-primary dark:hover:text-primary-fixed transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]">mic</span>
+<span class="font-label-sm text-label-sm mt-0.5">Mashq</span>
+</a>
+<!-- Tab 3: Lug'at -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:text-primary dark:hover:text-primary-fixed transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]">menu_book</span>
+<span class="font-label-sm text-label-sm mt-0.5">Lug'at</span>
+</a>
+<!-- Tab 4: Profil (STRICTLY ACTIVE per navigation intent and exact label match) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed bg-primary-fixed/30 dark:bg-primary-container/40 rounded-full px-3 py-1 transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm font-semibold mt-0.5">Profil</span>
+</a>
+</nav>
+</div>
+</body></html>

@@ -1,21 +1,79 @@
 <!doctype html>
-<html lang="uz">
+<html lang="uz" class="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0f766e">
-  <title>Nutq 30</title>
+  <title>Nutq 30 - Audio Nutq Chellenji</title>
   <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
-  <link rel="stylesheet" href="/css/app.css?v=2.2.1">
+
+  <!-- Google Fonts: Manrope & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN with Stitch Design System Config -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0f766e",
+            "primary-dark": "#005c55",
+            "primary-light": "#14b8a6",
+            "primary-fixed": "#ccfbf1",
+            "primary-fixed-dim": "#99f6e4",
+            "primary-container": "#0f766e",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#ccfbf1",
+            secondary: "#b45309",
+            "secondary-container": "#fef3c7",
+            "on-secondary-container": "#78350f",
+            background: "#faf8ff",
+            surface: "#ffffff",
+            "surface-tint": "#0f766e",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f8fafc",
+            "surface-container": "#f1f5f9",
+            "surface-container-high": "#e2e8f0",
+            "surface-container-highest": "#cbd5e1",
+            "on-surface": "#0f172a",
+            "on-surface-variant": "#475569",
+            outline: "#64748b",
+            "outline-variant": "#cbd5e1",
+            error: "#dc2626",
+            "error-container": "#fee2e2"
+          },
+          fontFamily: {
+            sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            headline: ["Manrope", "sans-serif"],
+            display: ["Manrope", "sans-serif"]
+          },
+          borderRadius: {
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "4xl": "2rem"
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="/css/app.css?v=2.3.0">
 </head>
-<body>
+<body class="bg-background text-on-surface antialiased selection:bg-primary-fixed selection:text-primary">
   <div id="appShell" class="app-shell">
     <header id="appHeader" class="app-header">
       <button class="brand" type="button" onclick="App.navigate('home')" aria-label="Bosh sahifa">
         <span class="brand-mark" aria-hidden="true">N</span>
         <span>
           <strong>Nutq 30</strong>
-          <small>audio nutq chellenji</small>
+          <small>30 kunlik nutq chellenji</small>
         </span>
       </button>
       <button id="profileButton" class="avatar-button" type="button" onclick="App.navigate('profile')" aria-label="Profil va sozlamalar">
@@ -31,10 +89,22 @@
     </main>
 
     <nav id="bottomNav" class="bottom-nav" aria-label="Asosiy navigatsiya">
-      <button type="button" data-route="home" onclick="App.navigate('home')"><span aria-hidden="true">⌂</span><small>Bugun</small></button>
-      <button type="button" data-route="map" onclick="App.navigate('map')"><span aria-hidden="true">▦</span><small>30 kun</small></button>
-      <button type="button" data-route="library" onclick="App.navigate('library')"><span aria-hidden="true">☰</span><small>Bilimlar</small></button>
-      <button type="button" data-route="progress" onclick="App.navigate('progress')"><span aria-hidden="true">↗</span><small>Natija</small></button>
+      <button type="button" data-route="home" onclick="App.navigate('home')">
+        <span class="material-symbols-outlined nav-icon" aria-hidden="true">home</span>
+        <small>Bugun</small>
+      </button>
+      <button type="button" data-route="map" onclick="App.navigate('map')">
+        <span class="material-symbols-outlined nav-icon" aria-hidden="true">explore</span>
+        <small>Xarita</small>
+      </button>
+      <button type="button" data-route="library" onclick="App.navigate('library')">
+        <span class="material-symbols-outlined nav-icon" aria-hidden="true">menu_book</span>
+        <small>Bilimlar</small>
+      </button>
+      <button type="button" data-route="progress" onclick="App.navigate('progress')">
+        <span class="material-symbols-outlined nav-icon" aria-hidden="true">insights</span>
+        <small>Natija</small>
+      </button>
     </nav>
   </div>
 
@@ -59,12 +129,12 @@
 
   <div id="toast" class="toast hidden" role="status"><span id="toastText"></span></div>
 
-  <script src="/js/telegram.js?v=2.2.1" defer></script>
-  <script src="/js/api.js?v=2.2.1" defer></script>
-  <script src="/js/storage.js?v=2.2.1" defer></script>
-  <script src="/js/liveTranscriber.js?v=2.2.1" defer></script>
-  <script src="/js/audioRecorder.js?v=2.2.1" defer></script>
-  <script src="/js/screens.js?v=2.2.1" defer></script>
-  <script src="/js/app.js?v=2.2.1" defer></script>
+  <script src="/js/telegram.js?v=2.3.0" defer></script>
+  <script src="/js/api.js?v=2.3.0" defer></script>
+  <script src="/js/storage.js?v=2.3.0" defer></script>
+  <script src="/js/liveTranscriber.js?v=2.3.0" defer></script>
+  <script src="/js/audioRecorder.js?v=2.3.0" defer></script>
+  <script src="/js/screens.js?v=2.3.0" defer></script>
+  <script src="/js/app.js?v=2.3.0" defer></script>
 </body>
 </html>

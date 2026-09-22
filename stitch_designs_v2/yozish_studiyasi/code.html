@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Nutq 30 - 8-kun: Jonli Ovoz Yozish Studiyasi</title>
+<!-- Google Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-fixed-variant": "#00504b",
+            "surface-tint": "#006a63",
+            "on-tertiary-fixed": "#00201e",
+            "tertiary": "#00423e",
+            "secondary-container": "#fea619",
+            "on-error": "#ffffff",
+            "surface-container-highest": "#dae2fd",
+            "primary-container": "#005c55",
+            "surface-container": "#eaedff",
+            "on-secondary-fixed": "#2a1700",
+            "tertiary-fixed": "#abefe8",
+            "tertiary-fixed-dim": "#8fd3cc",
+            "on-tertiary-container": "#8dd0ca",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#f2f3ff",
+            "surface": "#faf8ff",
+            "inverse-on-surface": "#f2f0f7",
+            "on-primary-fixed-variant": "#00504a",
+            "on-secondary-container": "#754900",
+            "secondary-fixed": "#ffddb8",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "on-primary-fixed": "#00201d",
+            "surface-dim": "#dbd9e0",
+            "surface-container-high": "#e9e7ee",
+            "primary-fixed": "#9cf2e8",
+            "tertiary-container": "#2f746f",
+            "error-container": "#ffdad6",
+            "outline": "#6e7977",
+            "surface-variant": "#e3e1e8",
+            "secondary-fixed-dim": "#ffb95f",
+            "surface-bright": "#faf8ff",
+            "on-primary-container": "#8ad2c8",
+            "on-surface": "#131b2e",
+            "on-secondary-fixed-variant": "#653e00",
+            "primary": "#00433d",
+            "primary-fixed-dim": "#8cd4ca",
+            "on-surface-variant": "#3f4947",
+            "secondary": "#855300",
+            "on-tertiary": "#ffffff",
+            "on-background": "#1a1b20",
+            "outline-variant": "#bdc9c6",
+            "error": "#ba1a1a",
+            "surface-container-lowest": "#ffffff",
+            "inverse-primary": "#80d5cb",
+            "background": "#faf8ff",
+            "inverse-surface": "#2f3035"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "space-lg": "1.25rem",
+            "space-xs": "0.25rem",
+            "space-xl": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1rem"
+          },
+          "fontFamily": {
+            "title-md": ["Manrope"],
+            "headline-lg": ["Manrope"],
+            "metric-timer": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-xl": ["Manrope"],
+            "headline-md": ["Manrope"],
+            "body-lg": ["Inter"],
+            "label-sm": ["Inter"]
+          },
+          "fontSize": {
+            "title-md": ["17px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "metric-timer": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.18); }
+    }
+    .animate-live-dot {
+      animation: subtlePulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes liveRing {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); }
+      70% { box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    .record-ring-pulse {
+      animation: liveRing 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+
+    .tabular-timer {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Waveform rhythmic animation */
+    @keyframes waveDance {
+      0%, 100% { height: 18%; }
+      50% { height: 92%; }
+    }
+    .wave-active-bar {
+      animation: waveDance 1.3s ease-in-out infinite alternate;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex justify-center selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Mobile Telegram Mini App Container (Strict max 480px, optimized for 390px) -->
+<main class="w-full max-w-[480px] min-h-screen bg-[#FBFBFE] flex flex-col justify-between relative shadow-2xl border-x border-outline-variant/20 px-4 pt-3 pb-8">
+<!-- Top Studio Chrome (Native Telegram WebApp Simulation Bar) -->
+<header class="w-full flex items-center justify-between gap-2 z-20 shrink-0">
+<!-- Bekor qilish (Cancel button) -->
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest/90 border border-outline-variant/40 shadow-sm active:scale-95 transition-transform duration-100 text-on-surface-variant font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="close">close</span>
+<span>Bekor qilish</span>
+</button>
+<!-- Center: Live Status badge with gentle pulsing red dot indicator -->
+<div class="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-200/80 px-3 py-1.5 rounded-full shadow-sm">
+<span class="w-2 h-2 rounded-full bg-[#DC2626] animate-live-dot inline-block"></span>
+<span class="font-label-md text-label-md text-rose-800 tracking-tight font-semibold">Jonli Yozuv • 1-urinish</span>
+</div>
+<!-- Right: Audio Mode Pill -->
+<div class="inline-flex items-center gap-1 bg-surface-container-lowest/90 border border-primary/20 px-2.5 py-1.5 rounded-full shadow-sm text-primary">
+<span class="material-symbols-outlined text-[15px] text-surface-tint" data-icon="mic" style="font-variation-settings: 'FILL' 1;">mic</span>
+<span class="font-label-md text-label-md text-primary font-semibold">Audio</span>
+</div>
+</header>
+<!-- Main Live Studio Recording Canvas -->
+<div class="flex-1 flex flex-col justify-between py-3 space-y-4">
+<!-- Section 1: Prominent Digital Timer & Dynamic Pacing -->
+<section class="flex flex-col items-center text-center mt-1">
+<p class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase mb-1">
+          8-kun: Jonli Ovoz Yozish Studiyasi
+        </p>
+<!-- Big Crystal-clear Timer Display -->
+<div class="flex items-baseline justify-center gap-1 tabular-timer my-0.5">
+<span class="font-headline-xl text-[38px] leading-[44px] font-extrabold text-on-surface tracking-tight" id="live-timer">
+            00:28
+          </span>
+<span class="font-title-md text-[20px] font-normal text-outline">
+            / 01:00
+          </span>
+</div>
+<!-- Micro-progress bar: 28s / 60s (~47%) -->
+<div class="w-48 h-1.5 bg-surface-container-high rounded-full overflow-hidden mt-1 mb-2.5 border border-outline-variant/30">
+<div class="h-full bg-surface-tint rounded-full transition-all duration-300" style="width: 47%;"></div>
+</div>
+<!-- Real-time Speech Pace / Rhythm Pill -->
+<div class="inline-flex items-center gap-1.5 bg-emerald-50/90 text-emerald-800 border border-emerald-200/80 rounded-full px-3.5 py-1 shadow-sm">
+<span class="material-symbols-outlined text-[15px] text-emerald-700" data-icon="bolt">bolt</span>
+<span class="font-label-md text-label-md font-medium">
+            Marom: Me'yorda <span class="font-semibold text-emerald-900">(120 so'z/daq)</span>
+</span>
+</div>
+</section>
+<!-- Section 2: Real-time Audio Waveform Visualizer -->
+<section class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-4 shadow-[0px_2px_8px_-2px_rgba(15,23,42,0.04)] relative overflow-hidden">
+<!-- Live Waveform Top Meta (dB level & status) -->
+<div class="flex items-center justify-between mb-3 text-label-sm font-label-sm">
+<span class="inline-flex items-center gap-1.5 text-on-surface-variant font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+            Ovoz kuchi: <strong class="text-on-surface font-semibold">-14 dB</strong>
+</span>
+<span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 font-medium">
+            Shovqinsiz tiniq audio
+          </span>
+</div>
+<!-- Dynamic Simulated Voice Frequency Amplitude Bars (32 Bars) -->
+<div aria-label="Jonli Ovoz To'lqini" class="h-20 flex items-center justify-between gap-[3px] px-1 py-1">
+<!-- Active Played/Recorded Bars (Teal gradient to mint) -->
+<div class="w-1.5 bg-surface-tint rounded-full h-[35%] opacity-90"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[55%] opacity-95"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[25%] opacity-85"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[70%] opacity-100"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[85%] opacity-100"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[40%] opacity-90"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[60%] opacity-95"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[95%] opacity-100"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[50%] opacity-90"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[75%] opacity-100"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[30%] opacity-85"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[90%] opacity-100"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[65%] opacity-95"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[45%] opacity-90"></div>
+<!-- Mid-Live Active Speaking Pulsing Bars -->
+<div class="w-1.5 bg-primary-container rounded-full h-[88%] wave-active-bar" style="animation-delay: -0.2s;"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[98%] wave-active-bar" style="animation-delay: -0.5s;"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[78%] wave-active-bar" style="animation-delay: -0.1s;"></div>
+<div class="w-1.5 bg-primary-container rounded-full h-[92%] wave-active-bar" style="animation-delay: -0.4s;"></div>
+<div class="w-1.5 bg-surface-tint rounded-full h-[62%] wave-active-bar" style="animation-delay: -0.6s;"></div>
+<!-- Upcoming / Silent Spectrum Bars (Subtle outline tone) -->
+<div class="w-1.5 bg-surface-container-high rounded-full h-[30%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[18%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[22%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[15%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[20%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[16%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[24%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[14%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[18%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[12%]"></div>
+<div class="w-1.5 bg-surface-container-high rounded-full h-[16%]"></div>
+</div>
+<!-- Ambient sound sensitivity caption -->
+<div class="flex items-center justify-between border-t border-outline-variant/20 pt-2.5 mt-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-surface-tint" data-icon="graphic_eq">graphic_eq</span>
+<span>Mikrofon sezgirligi faol</span>
+</div>
+<span class="text-on-surface-variant font-label-sm text-label-sm">48 kHz • 16-bit</span>
+</div>
+</section>
+<!-- Section 3: Live Teleprompter / 3-Point NNQ Helper Card -->
+<section class="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-4 shadow-sm relative">
+<!-- Header with pedagogical context & plan -->
+<div class="flex items-center justify-between pb-2.5 mb-2 border-b border-outline-variant/20">
+<div class="inline-flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary-container" data-icon="lightbulb" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<h2 class="font-title-md text-[14px] leading-5 text-on-surface font-bold">NNQ Qolipi (Esda tuting)</h2>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-low text-on-surface-variant px-2 py-0.5 rounded-full border border-outline-variant/30">
+            60 soniya rejasi
+          </span>
+</div>
+<!-- 3 Structured NNQ Step Cards -->
+<div class="space-y-2">
+<!-- Step 1: Active Focus (Niyat) -->
+<div class="bg-emerald-50/80 border-l-[3.5px] border-surface-tint rounded-r-xl p-2.5 transition-all">
+<div class="flex items-center justify-between mb-0.5">
+<span class="font-label-sm text-label-sm font-bold text-surface-tint uppercase tracking-wider">
+                1. Niyat (Hozirgi bosqich)
+              </span>
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-surface-tint opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-surface-tint"></span>
+</span>
+</div>
+<p class="font-body-md text-body-md font-semibold text-on-surface">
+              "Ushbu loyihaning bosh maqsadi nima?"
+            </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">
+              Aniq bitta jumla bilan asosiy g'oyani ayting.
+            </p>
+</div>
+<!-- Step 2: Next Step (Natija) -->
+<div class="flex items-start gap-2.5 px-2.5 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low/50">
+<span class="w-5 h-5 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm font-bold shrink-0 mt-0.5">
+              2
+            </span>
+<div>
+<p class="font-body-sm text-body-sm font-medium text-on-surface">
+                Natija: <span class="font-normal text-on-surface-variant">"Jamoaga va mijozga qanday natija beradi?"</span>
+</p>
+</div>
+</div>
+<!-- Step 3: Next Step (Qadam) -->
+<div class="flex items-start gap-2.5 px-2.5 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low/50">
+<span class="w-5 h-5 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm font-bold shrink-0 mt-0.5">
+              3
+            </span>
+<div>
+<p class="font-body-sm text-body-sm font-medium text-on-surface">
+                Qadam: <span class="font-normal text-on-surface-variant">"Bugun aynan nima qilishni taklif etasiz?"</span>
+</p>
+</div>
+</div>
+</div>
+<!-- Calming Pedagogical Hint at bottom -->
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-start gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-surface-tint shrink-0 mt-0.5" data-icon="spa">spa</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant italic leading-snug">
+            Eslatma: Har bir fikrdan so'ng 1 soniya xotirjam nafas oling va pauza qiling. Shoshilish shart emas.
+          </p>
+</div>
+</section>
+</div>
+<!-- Bottom Action Zone (Tactile Studio Controls & Primary CTA) -->
+<footer class="w-full shrink-0 pt-2 space-y-3">
+<!-- Ergonomic 3-Button Recording Controls Tray -->
+<div class="flex items-end justify-center gap-7 px-4">
+<!-- Left: Pause Button -->
+<div class="flex flex-col items-center gap-1.5">
+<button aria-label="Pauza qilish" class="w-12 h-12 rounded-full bg-surface-container-lowest border border-outline-variant/40 shadow-sm text-on-surface flex items-center justify-center hover:bg-surface-container-low active:scale-90 transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="pause">pause</span>
+</button>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Pauza</span>
+</div>
+<!-- Center: 72px Prominent Tactile Stop Trigger Button with Glowing Pulse -->
+<div class="flex flex-col items-center gap-1.5">
+<button aria-label="Yozuvni to'xtatish" class="w-[70px] h-[70px] rounded-full bg-[#DC2626] text-white flex items-center justify-center record-ring-pulse shadow-md hover:bg-red-700 active:scale-95 transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[32px] text-white" data-icon="stop" style="font-variation-settings: 'FILL' 1;">stop</span>
+</button>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold tracking-tight">To'xtatish</span>
+</div>
+<!-- Right: Restart Button -->
+<div class="flex flex-col items-center gap-1.5">
+<button aria-label="Qaytadan yozish" class="w-12 h-12 rounded-full bg-surface-container-lowest border border-outline-variant/40 shadow-sm text-on-surface flex items-center justify-center hover:bg-surface-container-low active:scale-90 transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[22px]" data-icon="replay">replay</span>
+</button>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Qaytadan</span>
+</div>
+</div>
+<!-- Wide Primary Completion CTA Button -->
+<div class="w-full pt-1">
+<button class="w-full h-12 bg-surface-tint hover:bg-primary-container active:scale-[0.98] text-white font-title-md text-[15px] font-semibold rounded-full shadow-md flex items-center justify-center gap-2 transition-all duration-150" type="button">
+<span>Yozuvni yakunlash va tahlil qilish</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<!-- Reassuring Confidence-building Microcopy -->
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant/80 mt-2 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-surface-tint" data-icon="psychology">psychology</span>
+<span>Yozuv avtomatik ravishda murabbiy AI tahliliga yuboriladi</span>
+</p>
+</div>
+</footer>
+</main>
+<script>
+    // Lightweight vanilla micro-interaction for active recording countdown
+    document.addEventListener("DOMContentLoaded", () => {
+      let seconds = 28;
+      const timerElement = document.getElementById("live-timer");
+      
+      if (timerElement) {
+        setInterval(() => {
+          if (seconds < 60) {
+            seconds++;
+            const formatted = `00:${seconds < 10 ? '0' : ''}${seconds}`;
+            timerElement.textContent = formatted;
+          }
+        }, 1000);
+      }
+    });
+  </script>
+</body></html>

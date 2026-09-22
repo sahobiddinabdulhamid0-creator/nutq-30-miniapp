@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html class="light" lang="uz"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>8-kun • Natija va Tahlil | Nutq 30</title>
+<!-- Google Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#f2f3ff",
+            "on-secondary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed": "#2a1700",
+            "on-tertiary-container": "#8dd0ca",
+            "inverse-on-surface": "#f2f0f7",
+            "secondary-fixed-dim": "#ffb95f",
+            "surface-container-highest": "#e3e1e8",
+            "tertiary-fixed": "#abefe8",
+            "on-background": "#1a1b20",
+            "surface-container-high": "#e2e7ff",
+            "background": "#faf8ff",
+            "on-error-container": "#93000a",
+            "on-secondary-fixed-variant": "#653e00",
+            "surface-variant": "#e3e1e8",
+            "primary-fixed": "#a7f0e6",
+            "outline": "#6e7977",
+            "on-tertiary-fixed": "#00201e",
+            "surface-dim": "#d2d9f4",
+            "surface-bright": "#faf8ff",
+            "primary": "#00433d",
+            "on-tertiary": "#ffffff",
+            "on-tertiary-fixed-variant": "#00504b",
+            "on-primary-fixed": "#00201d",
+            "inverse-primary": "#80d5cb",
+            "secondary": "#855300",
+            "on-secondary-container": "#754900",
+            "on-primary": "#ffffff",
+            "error-container": "#ffdad6",
+            "surface-tint": "#1a6962",
+            "on-surface": "#131b2e",
+            "on-surface-variant": "#3f4947",
+            "secondary-container": "#fdb965",
+            "on-primary-container": "#8ad2c8",
+            "on-primary-fixed-variant": "#00504a",
+            "primary-container": "#005c55",
+            "error": "#ba1a1a",
+            "surface-container": "#efedf4",
+            "tertiary": "#00423e",
+            "inverse-surface": "#2f3035",
+            "tertiary-container": "#2f746f",
+            "on-error": "#ffffff",
+            "outline-variant": "#bec9c6",
+            "secondary-fixed": "#ffddb8",
+            "tertiary-fixed-dim": "#8fd3cc",
+            "surface": "#faf8ff",
+            "primary-fixed-dim": "#80d5cb"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.25rem",
+            "space-xs": "0.25rem",
+            "margin": "1rem",
+            "gutter": "1rem",
+            "space-xl": "1.5rem"
+          },
+          "fontFamily": {
+            "label-sm": ["Inter"],
+            "headline-md": ["Manrope"],
+            "headline-lg": ["Manrope"],
+            "body-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "title-md": ["Manrope"],
+            "body-lg": ["Inter"],
+            "metric-timer": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-xl": ["Manrope"]
+          },
+          "fontSize": {
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "title-md": ["17px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "metric-timer": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+    .tnum {
+      font-feature-settings: 'tnum' 1;
+    }
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased flex flex-col min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Main Viewport Wrap: Constrained for Telegram Mini App (390px-480px) -->
+<div class="w-full max-w-[480px] mx-auto min-h-screen bg-background flex flex-col relative pb-[120px] shadow-sm">
+<!-- 1. Telegram App Header & Breadcrumb Top Bar (Suppressed Global BottomNavBar per Task-Focused Review Intent) -->
+<header class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md px-4 py-2.5 flex items-center justify-between border-b border-outline-variant/30">
+<div class="flex items-center gap-2">
+<button aria-label="Orqaga qaytish" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="arrow_back">arrow_back</span>
+</button>
+<div>
+<div class="flex items-center gap-1.5">
+<h1 class="font-headline-md text-[17px] leading-tight font-bold text-on-surface tracking-tight">8-kun • Natija va Tahlil</h1>
+<span class="material-symbols-outlined material-symbols-fill text-[15px] text-primary" data-icon="verified" title="Tasdiqlangan baholash">verified</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline flex items-center gap-1">
+<span>Niyat, Natija, Qadam (NNQ) nutqi</span>
+</p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Batafsil" class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Screen Content -->
+<main class="px-4 pt-3.5 space-y-4 flex-1">
+<!-- 2. Dual Attempt Growth Hero Card ("Urinishlar Solishtiruvi") -->
+<section class="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/40 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.04)] relative overflow-hidden">
+<!-- Header & Growth Pill -->
+<div class="flex items-start justify-between gap-2 pb-3 border-b border-outline-variant/20">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline block mb-0.5">Urinishlar Solishtiruvi</span>
+<div class="flex items-baseline gap-2.5">
+<span class="font-headline-xl text-[28px] font-extrabold text-primary leading-none tnum">86<span class="text-sm font-normal text-outline">/100</span></span>
+<span class="font-label-md text-label-md font-semibold text-outline line-through tnum">74 ball</span>
+</div>
+</div>
+<!-- Growth Pill -->
+<div class="inline-flex items-center gap-1 bg-primary-fixed/40 text-primary-container border border-primary-fixed-dim/40 px-2.5 py-1 rounded-full text-right shadow-xs">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="trending_up">trending_up</span>
+<span class="font-label-md text-[11px] font-bold text-primary tnum">+12 ball sof o'sish</span>
+</div>
+</div>
+<!-- Before & After Comparison Tracks -->
+<div class="mt-3.5 space-y-3">
+<!-- Track 1: 1-urinish (Bazaviy) -->
+<div class="bg-surface-container-low/60 rounded-lg p-2.5 border border-outline-variant/30 flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-label-md text-label-md font-medium text-on-surface-variant">1-urinish (Bazaviy)</span>
+</div>
+<span class="font-label-sm text-label-sm font-semibold text-outline tnum">74 ball • 0:58</span>
+</div>
+<!-- Mini Player & Waveform 1 -->
+<div class="flex items-center gap-2 pt-0.5">
+<button aria-label="1-urinishni tinglash" class="w-8 h-8 rounded-full bg-surface-container-lowest border border-outline-variant/50 text-on-surface flex items-center justify-center hover:bg-surface-container active:scale-90 transition-all flex-shrink-0" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="play_circle">play_circle</span>
+</button>
+<!-- Waveform with 4 red parasite markers -->
+<div class="flex-1 flex items-center gap-[2.5px] h-7 px-1 relative">
+<!-- Bars mock -->
+<span class="w-[3px] h-2.5 bg-outline-variant/80 rounded-full"></span>
+<span class="w-[3px] h-4 bg-outline-variant/80 rounded-full"></span>
+<span class="w-[3px] h-5 bg-outline-variant/80 rounded-full"></span>
+<!-- Parazit 1 -->
+<span class="w-[4px] h-6 bg-error rounded-full" title="Parazit so'z: 'Xo'sh'"></span>
+<span class="w-[3px] h-3 bg-outline-variant/80 rounded-full"></span>
+<span class="w-[3px] h-5 bg-outline-variant/80 rounded-full"></span>
+<!-- Parazit 2 -->
+<span class="w-[4px] h-6 bg-error rounded-full" title="Parazit so'z: 'Eee'"></span>
+<span class="w-[3px] h-4 bg-outline-variant/80 rounded-full"></span>
+<span class="w-[3px] h-2 bg-outline-variant/80 rounded-full"></span>
+<span class="w-[3px] h-5 bg-outline-variant/80 rounded-full"></span>
+<!-- Parazit 3 -->
+<span class="w-[4px] h-6 bg-error rounded-full" title="Parazit so'z: 'Haligi'"></span>
+<span class="w-[3px] h-3 bg-outline-variant/80 rounded-full"></span>
+<span class="w-[3px] h-5 bg-outline-variant/80 rounded-full"></span>
+<!-- Parazit 4 -->
+<span class="w-[4px] h-6 bg-error rounded-full" title="Parazit so'z: 'Yana'"></span>
+<span class="w-[3px] h-4 bg-outline-variant/80 rounded-full"></span>
+<span class="w-[3px] h-2 bg-outline-variant/80 rounded-full"></span>
+</div>
+<span class="text-[10px] font-label-sm font-semibold text-error bg-error-container/60 px-1.5 py-0.5 rounded">4 ta xato</span>
+</div>
+</div>
+<!-- Track 2: 2-urinish (Natija - Optimized) -->
+<div class="bg-primary-fixed/20 rounded-lg p-2.5 border border-primary-fixed-dim/50 flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-md text-label-md font-bold text-primary">2-urinish (Natija)</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-primary-container tnum">86 ball • 0:52</span>
+</div>
+<!-- Mini Player & Waveform 2 -->
+<div class="flex items-center gap-2 pt-0.5">
+<button aria-label="2-urinishni tinglash" class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container active:scale-90 transition-all flex-shrink-0 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] material-symbols-fill" data-icon="play_arrow">play_arrow</span>
+</button>
+<!-- Clean Waveform with deliberate pauses -->
+<div class="flex-1 flex items-center gap-[2.5px] h-7 px-1 relative">
+<span class="w-[3px] h-3.5 bg-primary-container/80 rounded-full"></span>
+<span class="w-[3px] h-5 bg-primary-container/80 rounded-full"></span>
+<span class="w-[3px] h-6 bg-primary-container/90 rounded-full"></span>
+<!-- Pause 1 (sukut) -->
+<span class="w-[3px] h-1.5 bg-primary-fixed-dim/90 rounded-full" title="1.5s ongli sukut"></span>
+<span class="w-[3px] h-5 bg-primary-container/80 rounded-full"></span>
+<span class="w-[3px] h-6 bg-primary-container/90 rounded-full"></span>
+<span class="w-[3px] h-4 bg-primary-container/80 rounded-full"></span>
+<!-- Pause 2 (sukut) -->
+<span class="w-[3px] h-1.5 bg-primary-fixed-dim/90 rounded-full" title="1.2s ongli sukut"></span>
+<span class="w-[3px] h-5 bg-primary-container/80 rounded-full"></span>
+<span class="w-[3px] h-6 bg-primary-container/90 rounded-full"></span>
+<span class="w-[3px] h-4 bg-primary-container/80 rounded-full"></span>
+<span class="w-[3px] h-5 bg-primary-container/80 rounded-full"></span>
+<span class="w-[3px] h-2 bg-primary-container/80 rounded-full"></span>
+</div>
+<span class="text-[10px] font-label-sm font-semibold text-primary-container bg-primary-fixed/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[11px]" data-icon="check">check</span> Toza ritm
+              </span>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Evidence-Based Observation Counters (3 ta Dalilli Hisoblagich) -->
+<section class="grid grid-cols-3 gap-2">
+<!-- Metric 1: Parazit so'zlar -->
+<div class="bg-surface-container-lowest p-2.5 rounded-xl border border-outline-variant/30 flex flex-col justify-between shadow-[0_1px_3px_rgba(15,23,42,0.02)]">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] text-outline uppercase tracking-wider">Parazitlar</span>
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="filter_alt">filter_alt</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-[18px] font-bold text-on-surface tnum">1</span>
+<span class="font-label-sm text-[11px] text-outline line-through tnum">4 ta</span>
+</div>
+</div>
+<div class="mt-2 pt-1 border-t border-outline-variant/20">
+<span class="text-[9.5px] font-label-sm font-semibold text-primary bg-primary-fixed/40 px-1.5 py-0.5 rounded-full inline-block">
+              -75% kamaydi
+            </span>
+</div>
+</div>
+<!-- Metric 2: Sokin pauzalar -->
+<div class="bg-surface-container-lowest p-2.5 rounded-xl border border-outline-variant/30 flex flex-col justify-between shadow-[0_1px_3px_rgba(15,23,42,0.02)]">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] text-outline uppercase tracking-wider">Pauzalar</span>
+<span class="material-symbols-outlined text-[14px] text-secondary" data-icon="timer">timer</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="font-headline-md text-[18px] font-bold text-on-surface tnum">2 ta</span>
+<span class="font-label-sm text-[10px] text-outline">sukut</span>
+</div>
+</div>
+<div class="mt-2 pt-1 border-t border-outline-variant/20">
+<span class="text-[9.5px] font-label-sm font-semibold text-secondary-container bg-on-secondary-fixed/5 px-1.5 py-0.5 rounded-full inline-block">
+              1.5s vazmin
+            </span>
+</div>
+</div>
+<!-- Metric 3: Nutq tempi -->
+<div class="bg-surface-container-lowest p-2.5 rounded-xl border border-outline-variant/30 flex flex-col justify-between shadow-[0_1px_3px_rgba(15,23,42,0.02)]">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-[10px] text-outline uppercase tracking-wider">Nutq tempi</span>
+<span class="material-symbols-outlined text-[14px] text-tertiary-container" data-icon="speed">speed</span>
+</div>
+<div class="flex items-baseline gap-0.5 mt-0.5">
+<span class="font-headline-md text-[18px] font-bold text-on-surface tnum">124</span>
+<span class="font-label-sm text-[10px] text-outline">s/daq</span>
+</div>
+</div>
+<div class="mt-2 pt-1 border-t border-outline-variant/20">
+<span class="text-[9.5px] font-label-sm font-semibold text-primary bg-primary-fixed/40 px-1.5 py-0.5 rounded-full inline-block">
+              Me'yorda
+            </span>
+</div>
+</div>
+</section>
+<!-- 4. Interactive Timestamp Timeline (Vaqt belgilari & Dalillar) -->
+<section class="bg-surface-container-lowest rounded-xl p-3.5 border border-outline-variant/40 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.04)]">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="timeline">timeline</span>
+<h2 class="font-title-md text-[15px] font-bold text-on-surface">Dalilli Vaqt Belgilari</h2>
+</div>
+<span class="font-label-sm text-[11px] text-outline">2-urinish tahlili</span>
+</div>
+<div class="relative pl-4 space-y-3.5 before:content-[''] before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-[1.5px] before:bg-outline-variant/40">
+<!-- Timestamp 1 -->
+<div class="relative group cursor-pointer">
+<span class="absolute -left-4 top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-primary-fixed/40"></span>
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-[11px] font-bold text-primary tnum bg-primary-fixed/30 px-1.5 py-0.5 rounded">00:14</span>
+<span class="font-label-md text-[12px] font-semibold text-on-surface">Kuchli kirish: "Niyatimiz aniq..."</span>
+</div>
+<p class="font-body-sm text-[11.5px] text-on-surface-variant mt-0.5 leading-snug">
+                  Auditoriya diqqatini birinchi 15 soniyada ushlab qoldi. Niyat qismi aniq ifodalandi.
+                </p>
+</div>
+<button aria-label="00:14 daqiqani tinglash" class="w-6 h-6 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0 active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+</div>
+<!-- Timestamp 2 (Major achievement) -->
+<div class="relative group cursor-pointer">
+<span class="absolute -left-4 top-1 w-2.5 h-2.5 rounded-full bg-secondary-container ring-4 ring-secondary-fixed/50"></span>
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-[11px] font-bold text-secondary tnum bg-secondary-fixed/50 px-1.5 py-0.5 rounded">00:28</span>
+<span class="font-label-md text-[12px] font-semibold text-on-surface">Parazit so'z o'rniga ongli pauza</span>
+</div>
+<p class="font-body-sm text-[11.5px] text-on-surface-variant mt-0.5 leading-snug">
+                  1-urinishdagi "Xo'sh" so'zi o'rniga 1.5 soniyalik vazmin tanaffus qilindi. Katta yutuq!
+                </p>
+</div>
+<button aria-label="00:28 daqiqani tinglash" class="w-6 h-6 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0 active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+</div>
+<!-- Timestamp 3 -->
+<div class="relative group cursor-pointer">
+<span class="absolute -left-4 top-1 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-primary-fixed/40"></span>
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-[11px] font-bold text-primary tnum bg-primary-fixed/30 px-1.5 py-0.5 rounded">00:46</span>
+<span class="font-label-md text-[12px] font-semibold text-on-surface">Aniq xulosa va qadam taklifi</span>
+</div>
+<p class="font-body-sm text-[11.5px] text-on-surface-variant mt-0.5 leading-snug">
+                  NNQ modelidagi 'Qadam' (Call to action) aniq mezonlar bilan muvaffaqiyatli yakunlandi.
+                </p>
+</div>
+<button aria-label="00:46 daqiqani tinglash" class="w-6 h-6 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0 active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-[14px]" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. 5-Mezonli 100 Ballik Baholash Kartasi (Batafsil tahlil) -->
+<section class="bg-surface-container-lowest rounded-xl p-3.5 border border-outline-variant/40 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.04)]">
+<div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-outline-variant/20">
+<div>
+<h2 class="font-title-md text-[15px] font-bold text-on-surface">5 Mezonli Pedagogik Baholash</h2>
+<p class="font-label-sm text-[11px] text-outline">Xalqaro notiqlik standarti asosida</p>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary bg-primary-fixed/40 px-2 py-0.5 rounded-full">
+            A'lo daraja
+          </span>
+</div>
+<div class="space-y-2.5">
+<!-- Mezon 1 -->
+<div>
+<div class="flex justify-between items-center text-xs mb-1">
+<span class="font-label-md text-[12px] text-on-surface-variant">Ravonlik va uzluksizlik</span>
+<span class="font-label-sm text-[11px] font-bold text-primary tnum">18 / 20</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 90%"></div>
+</div>
+</div>
+<!-- Mezon 2 -->
+<div>
+<div class="flex justify-between items-center text-xs mb-1">
+<span class="font-label-md text-[12px] text-on-surface-variant">Fikr aniqligi va ixchamlik</span>
+<span class="font-label-sm text-[11px] font-bold text-primary tnum">17 / 20</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 85%"></div>
+</div>
+</div>
+<!-- Mezon 3 -->
+<div>
+<div class="flex justify-between items-center text-xs mb-1">
+<span class="font-label-md text-[12px] text-on-surface-variant">Nutq tuzilmasi (NNQ)</span>
+<span class="font-label-sm text-[11px] font-bold text-primary tnum">18 / 20</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 90%"></div>
+</div>
+</div>
+<!-- Mezon 4 -->
+<div>
+<div class="flex justify-between items-center text-xs mb-1">
+<span class="font-label-md text-[12px] text-on-surface-variant">Talaffuz va intonatsiya</span>
+<span class="font-label-sm text-[11px] font-bold text-primary tnum">17 / 20</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 85%"></div>
+</div>
+</div>
+<!-- Mezon 5 -->
+<div>
+<div class="flex justify-between items-center text-xs mb-1">
+<span class="font-label-md text-[12px] text-on-surface-variant">Ishontirish kuchi</span>
+<span class="font-label-sm text-[11px] font-bold text-primary tnum">16 / 20</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 80%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. Murabbiy Xulosasi (Pedagogical Mentor Note) -->
+<section class="bg-surface-container-low/80 rounded-xl p-3.5 border border-outline-variant/30 relative">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]" data-icon="psychology">psychology</span>
+</div>
+<div>
+<h3 class="font-title-md text-[13px] font-bold text-on-surface">Murabbiy Xulosasi</h3>
+<p class="font-label-sm text-[10px] text-outline">Nutq 30 Pedagogik Algoritmi</p>
+</div>
+</div>
+<p class="font-body-sm text-[12.5px] leading-relaxed text-on-surface-variant italic">
+          "1-urinishdagi shoshqaloqlik 2-urinishda o'rnini xotirjamlik va pauzalarga bo'shatib berdi. Ayniqsa, 28-soniyadagi sokin tanaffus nutqingizga vazmin rahbarona ohang bag'ishladi."
+        </p>
+</section>
+</main>
+<!-- 7. Fixed Bottom Action Dock (Telegram Mini App viewport ergonomics) -->
+<div class="fixed bottom-0 left-0 right-0 w-full max-w-[480px] mx-auto z-50 bg-surface-container-lowest/95 backdrop-blur-md px-4 pt-2.5 pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(15,23,42,0.06)] flex flex-col gap-2">
+<!-- Primary CTA: 48px height, rounded-full, active scale effect -->
+<button class="w-full h-12 bg-primary hover:bg-primary-container active:scale-[0.98] text-on-primary font-headline-md text-[15px] font-bold rounded-full flex items-center justify-center gap-2 shadow-sm transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="check_circle">check_circle</span>
+<span>8-kuni muvaffaqiyatli yakunlash</span>
+</button>
+<!-- Secondary Share Button -->
+<button class="w-full h-9 bg-background hover:bg-surface-container-low active:scale-[0.98] border border-outline-variant/50 text-on-surface-variant font-label-md text-[12px] font-semibold rounded-full flex items-center justify-center gap-1.5 transition-all duration-150" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="share">share</span>
+<span>Yozuvni do'st yoki murabbiy bilan ulashish</span>
+</button>
+</div>
+</div>
+</body></html>
