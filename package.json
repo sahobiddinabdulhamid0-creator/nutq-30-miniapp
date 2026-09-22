@@ -1,6 +1,6 @@
 {
   "name": "nutq-30-telegram-miniapp",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Nutq 30 — ikki foydalanuvchi uchun 30 kunlik audio nutq mashq platformasi",
   "main": "server/server.js",
   "scripts": {

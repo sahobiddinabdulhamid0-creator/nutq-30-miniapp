@@ -55,7 +55,7 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self'; frame-ancestors https://web.telegram.org https://*.telegram.org"
   );
   req.requestId = crypto.randomUUID();
   res.setHeader('X-Request-Id', req.requestId);
@@ -123,7 +123,7 @@ function safeJson(value, fallback = {}) {
 }
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'nutq-30', version: '2.1.0', time: new Date().toISOString() });
+  res.json({ ok: true, service: 'nutq-30', version: '2.1.1', time: new Date().toISOString() });
 });
 
 app.post('/api/telegram/webhook', async (req, res, next) => {
