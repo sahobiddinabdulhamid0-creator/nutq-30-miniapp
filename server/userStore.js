@@ -108,6 +108,8 @@ function createDefaultUser(authUser) {
     },
     attempts: [],
     completions: [],
+    drillSessions: [],
+    fieldReports: [],
     createdAt: now,
     updatedAt: now
   };
@@ -244,6 +246,8 @@ class UserStore {
     let changed = false;
     if (!Array.isArray(user.attempts)) { user.attempts = []; changed = true; }
     if (!Array.isArray(user.completions)) { user.completions = []; changed = true; }
+    if (!Array.isArray(user.drillSessions)) { user.drillSessions = []; changed = true; }
+    if (!Array.isArray(user.fieldReports)) { user.fieldReports = []; changed = true; }
     if (!user.progress || typeof user.progress !== 'object') {
       user.progress = createDefaultUser(user).progress;
       changed = true;
@@ -434,6 +438,8 @@ class UserStore {
     };
     user.attempts = [];
     user.completions = [];
+    user.drillSessions = [];
+    user.fieldReports = [];
     user.updatedAt = isoNow();
     await this._persist();
     return user;
@@ -492,7 +498,13 @@ class UserStore {
       createdAt: isoNow()
     };
     user.attempts.push(attempt);
-    if (user.attempts.length > 300) user.attempts = user.attempts.slice(-300);
+    if (user.attempts.length > 300) {
+      const checkpointIds = new Set([1, 7, 30].map(day =>
+        user.attempts.find(item => item.day === day && item.attemptNumber === 1)?.id
+      ).filter(Boolean));
+      const recentStart = user.attempts.length - 300;
+      user.attempts = user.attempts.filter((item, index) => index >= recentStart || checkpointIds.has(item.id));
+    }
 
     if (attemptNumber === 1) {
       activeDay.activeCycle = {
@@ -623,6 +635,45 @@ class UserStore {
     await this._persist();
     return fresh;
   }
+
+  async addDrillSession(userId, input) {
+    await this._ready;
+    const user = this.getById(userId);
+    if (!user?.onboarding?.completed) {
+      const error = new Error('Avval boshlang‘ich sozlamalarni yakunlang.');
+      error.status = 403;
+      throw error;
+    }
+    const session = {
+      id: crypto.randomUUID(),
+      drillId: input.drillId,
+      completedChecks: input.completedChecks,
+      reflection: input.reflection,
+      practiceSeconds: input.practiceSeconds,
+      completedAt: isoNow()
+    };
+    user.drillSessions.push(session);
+    if (user.drillSessions.length > 500) user.drillSessions = user.drillSessions.slice(-500);
+    user.updatedAt = session.completedAt;
+    await this._persist();
+    return session;
+  }
+
+  async addFieldReport(userId, input) {
+    await this._ready;
+    const user = this.getById(userId);
+    if (!user?.onboarding?.completed) {
+      const error = new Error('Avval boshlang‘ich sozlamalarni yakunlang.');
+      error.status = 403;
+      throw error;
+    }
+    const report = { id: crypto.randomUUID(), ...input, createdAt: isoNow() };
+    user.fieldReports.push(report);
+    if (user.fieldReports.length > 100) user.fieldReports = user.fieldReports.slice(-100);
+    user.updatedAt = report.createdAt;
+    await this._persist();
+    return report;
+  }
 }
 
 function publicUser(user) {
@@ -633,6 +684,8 @@ function publicUser(user) {
     progress: user.progress,
     attempts: user.attempts,
     completions: user.completions,
+    drillSessions: user.drillSessions,
+    fieldReports: user.fieldReports,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt
   };

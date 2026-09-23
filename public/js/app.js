@@ -11,6 +11,9 @@ const App = {
   warmupInterval: null,
   dayRefreshTimer: null,
   ttsUrl: null,
+  playbackUrl: null,
+  drillStartedAt: null,
+  drillTimer: null,
   workout: {
     day: null,
     selectedFocus: '',
@@ -46,7 +49,7 @@ const App = {
         const urlParams = new URLSearchParams(window.location.search);
         const initialScreen = urlParams.get('screen') || 'home';
         const dayParam = Number(urlParams.get('day') || this.user.progress.currentDay || 8);
-        this.render(initialScreen, { day: dayParam }, false);
+        this.render(initialScreen, { day: dayParam, id: urlParams.get('id') || undefined }, false);
       }
     } catch (error) {
       this.closeLoading();
@@ -109,6 +112,10 @@ const App = {
   },
 
   render(screen, params = {}, push = false) {
+    if (this.currentScreen === 'drill' && (screen !== 'drill' || params.id !== this.screenParams.id)) {
+      clearInterval(this.drillTimer);
+      this.drillStartedAt = null;
+    }
     if (push) this.history.push({ screen: this.currentScreen, params: this.screenParams });
     this.currentScreen = screen;
     this.screenParams = params;
@@ -135,7 +142,8 @@ const App = {
       case 'focus': html = Screens.focus(lesson, this.workout.attempt1); break;
       case 'compare': html = Screens.compare(lesson, this.workout.attempt1, this.workout.attempt2); break;
       case 'completed': html = Screens.completed(params.completion, this.user.progress); break;
-      case 'library': html = Screens.library(this.user, this.content.curriculum); break;
+      case 'library': html = Screens.library(this.user, this.content.curriculum, this.content.drills || [], this.content.pillars); break;
+      case 'drill': html = Screens.drill(this.user, (this.content.drills || []).find(item => item.id === params.id), this.content.pillars); break;
       case 'progress': html = Screens.progress(this.user, this.content.pillars); break;
       case 'profile': html = Screens.profile(this.user, this.devMode, this.capabilities); break;
       default: html = Screens.home(this.user, this.content.curriculum, this.capabilities, this.devMode);
@@ -143,7 +151,7 @@ const App = {
 
     this.main().innerHTML = html;
     window.scrollTo({ top: 0, behavior: 'instant' });
-    const immersive = ['onboarding', 'lesson', 'prepare', 'record', 'review', 'analysis', 'focus', 'compare', 'completed'].includes(screen);
+    const immersive = ['onboarding', 'lesson', 'prepare', 'record', 'review', 'analysis', 'focus', 'compare', 'completed', 'drill'].includes(screen);
     this.setChrome(!immersive, screen !== 'onboarding' && screen !== 'home');
     this.updateNav();
   },
@@ -164,6 +172,8 @@ const App = {
   goBack() {
     if (this.recorder?.isRecording) return this.cancelRecording();
     clearInterval(this.warmupInterval);
+    clearInterval(this.drillTimer);
+    this.drillStartedAt = null;
     if (this.history.length) {
       const previous = this.history.pop();
       this.render(previous.screen, previous.params, false);
@@ -274,6 +284,20 @@ const App = {
     } finally {
       button.disabled = false;
     }
+  },
+
+  async playAttemptAudio(attemptId) {
+    try {
+      const blob = await AudioStore.get(`${this.user.id}:${attemptId}`);
+      if (!blob) return this.toast('Bu audio shu qurilmada topilmadi.', 'warning');
+      const player = document.getElementById('attemptAudio');
+      if (!player) return;
+      if (this.playbackUrl) URL.revokeObjectURL(this.playbackUrl);
+      this.playbackUrl = URL.createObjectURL(blob);
+      player.src = this.playbackUrl;
+      player.classList.remove('hidden');
+      await player.play();
+    } catch (error) { this.toast(error.message, 'error'); }
   },
 
   startWarmup() {
@@ -462,6 +486,61 @@ const App = {
       this.render('completed', { day: result.completion.day, completion: result.completion }, false);
     } catch (error) {
       this.closeLoading();
+      this.toast(error.message, 'error');
+    }
+  },
+
+  startDrillTimer() {
+    if (this.drillStartedAt) return;
+    this.drillStartedAt = Date.now();
+    const button = document.getElementById('drillStart');
+    if (button) button.textContent = 'Mashq davom etmoqda';
+    const update = () => {
+      const timer = document.getElementById('drillTimer');
+      if (timer) timer.textContent = `${Math.floor((Date.now() - this.drillStartedAt) / 1000)} soniya`;
+    };
+    update();
+    this.drillTimer = setInterval(update, 1000);
+  },
+
+  async saveDrill(event, id) {
+    event.preventDefault();
+    const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+    if (submitButton?.disabled) return;
+    const checks = [...event.currentTarget.querySelectorAll('input[name="drillCheck"]:checked')].length;
+    if (!this.drillStartedAt) return this.toast('Avval mashqni boshlang.', 'warning');
+    if (checks < 2) return this.toast('Kamida ikki qadamni bajaring.', 'warning');
+    const practiceSeconds = Math.min(1800, Math.floor((Date.now() - this.drillStartedAt) / 1000));
+    if (practiceSeconds < 20) return this.toast('Mashqni ovoz chiqarib kamida 20 soniya bajaring.', 'warning');
+    const reflection = String(new FormData(event.currentTarget).get('reflection') || '').trim();
+    if (submitButton) submitButton.disabled = true;
+    try {
+      const result = await Api.post(`/api/drills/${encodeURIComponent(id)}/complete`, { completedChecks: checks, practiceSeconds, reflection });
+      this.user = result.user;
+      clearInterval(this.drillTimer);
+      this.drillStartedAt = null;
+      this.toast('Mashq saqlandi. Keyingi takrorlash rejalandi.');
+      this.render('library', {}, false);
+    } catch (error) {
+      if (submitButton) submitButton.disabled = false;
+      this.toast(error.message, 'error');
+    }
+  },
+
+  async saveFieldReport(event) {
+    event.preventDefault();
+    const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+    if (submitButton?.disabled) return;
+    const values = new FormData(event.currentTarget);
+    const payload = Object.fromEntries(['situation', 'skill', 'outcome', 'evidence', 'nextStep'].map(key => [key, String(values.get(key) || '').trim()]));
+    if (submitButton) submitButton.disabled = true;
+    try {
+      const result = await Api.post('/api/field-reports', payload);
+      this.user = result.user;
+      this.toast('Real suhbat kuzatuvi saqlandi.');
+      this.render('progress', {}, false);
+    } catch (error) {
+      if (submitButton) submitButton.disabled = false;
       this.toast(error.message, 'error');
     }
   },

@@ -127,6 +127,8 @@ function validateEvaluation(data, lesson, durationSeconds) {
   if (!data || typeof data !== 'object') throw new Error('Gemini tahlili bo‘sh qaytdi.');
   const transcript = sanitizeString(data.transcript, 12000);
   if (!transcript) throw new Error('Gemini transkripsiya qaytarmadi.');
+  const actualDuration = Math.max(1, Math.round(Number(durationSeconds) || 1));
+  const wordCount = transcript.split(/\s+/u).filter(token => /[\p{L}\p{N}]/u.test(token)).length;
 
   const activeIds = new Set(lesson.activeMetricIds);
   const metricScores = Array.isArray(data.metricScores)
@@ -180,9 +182,9 @@ function validateEvaluation(data, lesson, durationSeconds) {
 
   return {
     transcript,
-    durationSeconds: Math.max(1, Math.round(Number(durationSeconds) || Number(data.durationSeconds) || 1)),
-    wordCount: Math.max(1, Math.round(Number(data.wordCount) || transcript.split(/\s+/).length)),
-    wpm: Math.max(1, Math.round(Number(data.wpm) || 1)),
+    durationSeconds: actualDuration,
+    wordCount,
+    wpm: Math.round(wordCount * 60 / actualDuration),
     fillerCount: Math.max(0, Math.round(Number(data.fillerCount) || 0)),
     longPauseCount: Math.max(0, Math.round(Number(data.longPauseCount) || 0)),
     restartCount: Math.max(0, Math.round(Number(data.restartCount) || 0)),

@@ -2,6 +2,8 @@
 
 Telegram Mini App ichida ishlaydigan, ikki foydalanuvchi uchun 30 kunlik audio nutq mashq platformasi.
 
+Kunlik darslarga qo‘shimcha ravishda besh ko‘nikma bo‘yicha 15 ta mustaqil mashq, 1/3/7 kunlik takrorlash eslatmasi, 1-/7-/30-kun birinchi yozuvlari nazorati va real suhbat kuzatuvlarini saqlash mavjud. Baholash chegaralari hamda mustaqil tekshiruv tartibi [LEARNING_DESIGN.md](LEARNING_DESIGN.md)da yozilgan.
+
 ## Asosiy oqim
 
 Har bir kun:

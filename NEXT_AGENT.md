@@ -1,6 +1,6 @@
 # Nutq 30 — Keyingi Agent Uchun Qo‘llanma, Xatolar va Saboqlar
 
-> **Versiya:** `2.4.1`  
+> **Versiya:** `2.5.0` (Productionga chiqarildi)
 > **Oxirgi barqaror commit:** `3e28ee7` (va keyingisi)  
 > **Production:** `https://nutq-30-miniapp.onrender.com/`  
 > **Telegram Bot:** `@nutquzbot`  
@@ -84,7 +84,7 @@ Frontendga (`app.css`, `app.js`, `screens.js`) o‘zgartirish kiritgach:
 npm run check
 npm test
 ```
-Barcha 15 ta test 100% o‘tishi shart.
+Barcha testlar o‘tishi shart (v2.5.0 da 19 ta).
 
 ---
 
@@ -96,4 +96,13 @@ Barcha 15 ta test 100% o‘tishi shart.
 - `public/js/app.js` — Telegram WebApp o‘zaro aloqasi, dars sikli boshqaruvi va audio yozish oqimi.
 - `server/server.js` — Express server, xavfsizlik (CSP), kesh boshqaruvi, R2 integratsiyasi va API marshrutlari.
 - `server/geminiService.js` — Gemini 3.8/3.5 nutq tahlili, metrikalar va audio qayta ishlash.
-- `tests/*.test.js` — 15 ta avtomatlashtirilgan unit va integratsion testlar.
+- `tests/*.test.js` — 19 ta avtomatlashtirilgan unit va integratsion testlar.
+
+## 5. v2.5.0 — o‘quv va natija tizimi
+
+- `server/practiceContent.js`: besh yo‘nalishdagi 15 ta mustaqil mashq; har birida usul, namuna, kuzatiladigan tekshiruv va real suhbat topshirig‘i bor.
+- `public/js/screens.js`: mashq zali, 1/3/7 kunlik takrorlash eslatmasi, bir xil topshiriqdagi 1-/7-/30-kun birinchi yozuvlari va real suhbat qaydlari. Eski maketdagi soxta ball, vaqt, nutq tezligi va ishlamaydigan audio tugmalari olib tashlandi.
+- `server/userStore.js`: mashq va real suhbat qaydlari foydalanuvchi bo‘yicha saqlanadi. Eski profillar ochilganda yangi maydonlar qo‘shiladi. 1-/7-/30-kun birinchi urinishlari 300 ta urinish chegarasidan keyin ham qoladi.
+- `server/geminiService.js`: so‘z soni transkripsiyadan, tezlik esa yozuv davomiyligidan qayta hisoblanadi. AI balli xolis yakuniy baho deb taqdim etilmaydi.
+- `LEARNING_DESIGN.md`: ilmiy tayanch, o‘lchov chegaralari va ikki mustaqil tinglovchi bilan pilot tekshiruv tartibi.
+- `npm run check` va `npm test`: 19/19 test o‘tgan. 390 px mobil light/dark ekranlar Chrome CDP orqali ko‘rib chiqilgan; lokal API da mashq va real suhbat qaydini saqlash tekshirilgan.

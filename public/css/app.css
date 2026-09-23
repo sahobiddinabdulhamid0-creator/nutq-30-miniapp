@@ -1005,3 +1005,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .stack > * + * { margin-top: 12px; }
 .stack-lg > * + * { margin-top: 16px; }
 .screen { display: flex; flex-direction: column; gap: 14px; }
+
+.practice-form label:not(.drill-check) { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 650; }
+.practice-form input:not([type="checkbox"]), .practice-form textarea, .practice-form select {
+  width: 100%; min-height: 44px; padding: 11px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+}
+.practice-form textarea { resize: vertical; }
+.practice-form input::placeholder, .practice-form textarea::placeholder { color: var(--muted); }
+.drill-check { display: flex; align-items: flex-start; gap: 10px; line-height: 1.4; }
+.drill-check input { width: 20px; height: 20px; flex: none; accent-color: var(--primary); }
+.checkpoint-row { display: flex; flex-direction: column; gap: 4px; padding: 10px 0; border-top: 1px solid var(--border); }
+.checkpoint-row span { color: var(--muted); font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }

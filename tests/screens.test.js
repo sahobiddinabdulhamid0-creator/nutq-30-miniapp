@@ -1,0 +1,40 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+const { CURRICULUM, PILLARS } = require('../server/learningContent');
+const { DRILLS } = require('../server/practiceContent');
+const { createDefaultUser } = require('../server/userStore');
+
+test('mashq zali va natija ekranlari eski hamda yangi profilda render bo‘ladi', () => {
+  const context = { window: {}, App: { getResumeState: () => null, workout: { selectedFocus: 'Jim pauza' } } };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../public/js/screens.js'), 'utf8'), context);
+  const screens = context.window.Screens;
+  const user = createDefaultUser({ id: 'smoke', firstName: 'Sinov' });
+  user.onboarding.completed = true;
+  user.progress.activeDay = { day: 1, cyclesCompleted: 0, unlocksAt: new Date().toISOString() };
+  const homeHtml = screens.home(user, CURRICULUM, { analysisAvailable: true }, false);
+  assert.match(homeHtml, /Yozilmagan/);
+  assert.doesNotMatch(homeHtml, /74 ball|\+12 ball|4 ta parazit so‘z|0:58/);
+  assert.match(screens.library(user, CURRICULUM, DRILLS, PILLARS), /Mustaqil mashqlar/);
+  assert.match(screens.drill(user, DRILLS[0], PILLARS), /Mashqni boshlash/);
+  assert.match(screens.progress(user, PILLARS), /Taqqoslanadigan nazorat/);
+  user.drillSessions = [{ drillId: DRILLS[0].id, completedAt: new Date().toISOString() }];
+  user.fieldReports = [{ situation: '<sinov>', skill: 'Pauza', evidence: 'Tushundi', outcome: 'tushundi' }];
+  assert.match(screens.library(user, CURRICULUM, DRILLS, PILLARS), /Mustaqil mashqlar/);
+  user.drillSessions.push({ drillId: DRILLS[0].id, completedAt: new Date().toISOString() });
+  const firstReviewDate = new Date(Date.now() + 86400000).toLocaleDateString('uz-UZ');
+  assert.ok(screens.library(user, CURRICULUM, DRILLS, PILLARS).includes(`${firstReviewDate} da`));
+  const progressHtml = screens.progress(user, PILLARS);
+  assert.match(progressHtml, /&lt;sinov&gt;/);
+  assert.doesNotMatch(progressHtml, /<sinov>/);
+  const first = { id: 'first', durationSeconds: 60, evaluation: { totalScore: 48, wordCount: 80, fillerCount: 4, longPauseCount: 2, wpm: 80, metricScores: [] } };
+  const second = { id: 'second', durationSeconds: 60, selectedFocus: 'Jim pauza', evaluation: { totalScore: 61, wordCount: 80, fillerCount: 2, longPauseCount: 1, wpm: 80, metricScores: [] } };
+  const compareHtml = screens.compare(CURRICULUM[0], first, second);
+  assert.match(compareHtml, /\+13 ball/);
+  assert.match(compareHtml, /App.playAttemptAudio/);
+  assert.doesNotMatch(compareHtml, /Ravon ritm|1.5s vazmin|Me'yorda/);
+  assert.match(screens.compare(CURRICULUM[0], null, null), /Taqqoslash tayyor emas/);
+});

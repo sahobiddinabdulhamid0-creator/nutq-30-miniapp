@@ -27,6 +27,27 @@ function remainingTimeLabel(unlocksAt) {
   return hours > 0 ? `${hours} soat ${minutes} daqiqa` : `${minutes} daqiqa`;
 }
 
+function drillReviewState(drillId, sessions = []) {
+  const history = sessions.filter(item => item.drillId === drillId);
+  if (!history.length) return { count: 0, due: true, label: 'Yangi' };
+  // Extra practice before a review is due does not advance the spacing schedule.
+  const qualifying = [];
+  for (const item of history) {
+    const time = new Date(item.completedAt).getTime();
+    if (!Number.isFinite(time)) continue;
+    const previous = qualifying[qualifying.length - 1];
+    const gap = previous ? [1, 3, 7][Math.min(qualifying.length - 1, 2)] * 86400000 : 0;
+    if (!previous || time >= new Date(previous.completedAt).getTime() + gap) qualifying.push(item);
+  }
+  if (!qualifying.length) return { count: history.length, due: true, label: 'Takrorlash' };
+  const latest = qualifying[qualifying.length - 1];
+  const gapDays = [1, 3, 7][Math.min(qualifying.length - 1, 2)];
+  const dueAt = new Date(latest.completedAt).getTime() + gapDays * 86400000;
+  if (!Number.isFinite(dueAt)) return { count: history.length, due: true, label: 'Takrorlash' };
+  const due = Date.now() >= dueAt;
+  return { count: history.length, due, label: due ? 'Takrorlash vaqti' : `${new Date(dueAt).toLocaleDateString('uz-UZ')} da` };
+}
+
 const Screens = {
   /* ------------------------------------------------------------------------ */
   /* ONBOARDING SCREEN                                                        */
@@ -43,7 +64,7 @@ const Screens = {
             <span>Xush kelibsiz, ${firstName}</span>
           </div>
           <div class="stack-sm">
-            <h1 class="font-headline text-2xl font-bold tracking-tight text-slate-900">30 kunda ravon va ishonchli nutqqa ega bo‘ling</h1>
+            <h1 class="font-headline text-2xl font-bold tracking-tight text-slate-900">30 kun nutqingizni mashq qiling va o‘zgarishni tekshiring</h1>
             <p class="muted leading-relaxed">Har kuni 1 ta mikro-dars, 2 ta audio urinish va dalilli AI tahlili.</p>
           </div>
         </div>
@@ -130,10 +151,16 @@ const Screens = {
     const ctaAction = programComplete
       ? "App.navigate('progress')"
       : resume ? `App.resumeDay(${day})` : `App.navigate('lesson',{day:${day}})`;
-    const modelLabel = capabilities?.configured ? 'Gemini 3.8 faol' : 'API sozlanmagan';
+    const modelLabel = capabilities?.analysisAvailable ? 'Audio tahlil tayyor' : 'Audio tahlil mavjud emas';
     const growth = activeDay?.growth;
-    const streak = progress.streakDays || Math.max(completed, 1);
-    const daysToMidpoint = Math.max(0, 15 - completed);
+    const streak = progress.streakDays || 0;
+    const nextMilestone = [7, 15, 21, 30].find(value => value > completed);
+    const activeCycle = activeDay?.activeCycle;
+    const latestCompletion = [...user.completions].reverse().find(item => item.day === day);
+    const firstAttemptId = activeCycle?.firstAttemptId || latestCompletion?.attempt1Id;
+    const secondAttemptId = activeCycle ? activeCycle.secondAttemptId : latestCompletion?.attempt2Id;
+    const homeAttempt1 = user.attempts.find(item => item.id === firstAttemptId);
+    const homeAttempt2 = user.attempts.find(item => item.id === secondAttemptId);
 
     return `
       <section class="screen pb-4">
@@ -172,16 +199,16 @@ const Screens = {
           </div>
           <!-- Animated glowing bar track -->
           <div class="relative w-full h-2.5 bg-slate-200/60 rounded-full overflow-hidden p-[1px]">
-            <div class="h-full rounded-full bg-gradient-to-r from-primary via-teal-500 to-teal-300 relative shadow-[0_0_12px_rgba(15,118,110,0.5)] transition-all duration-500" style="width: ${Math.max(5, percent)}%">
+            <div class="h-full rounded-full bg-gradient-to-r from-primary via-teal-500 to-teal-300 relative shadow-[0_0_12px_rgba(15,118,110,0.5)] transition-all duration-500" style="width: ${percent}%">
               <div class="absolute right-0 top-0 bottom-0 w-2 bg-white rounded-full opacity-90 blur-[1px]"></div>
             </div>
           </div>
           <div class="mt-2.5 flex items-center justify-between text-slate-500 text-[11.5px]">
             <div class="flex items-center space-x-1">
               <span class="material-symbols-outlined text-[14px] text-primary">flag</span>
-              <span>Keyingi marra: 15-kunlik oraliq sinov</span>
+              <span>${nextMilestone ? `Keyingi marra: ${nextMilestone}-kun` : '30 kun yakunlandi'}</span>
             </div>
-            <span class="font-semibold text-primary">${daysToMidpoint > 0 ? `${daysToMidpoint} kun qoldi` : 'Erishildi'}</span>
+            <span class="font-semibold text-primary">${nextMilestone ? `${nextMilestone - completed} kun` : 'Tayyor'}</span>
           </div>
         </section>
 
@@ -204,22 +231,13 @@ const Screens = {
             ${escapeHtml(lesson.skill)}
           </p>
 
-          <!-- 3D Interactive Formula Pill Strip -->
+          <!-- Today's speaking cues -->
           <div class="mt-4 py-2 px-2.5 rounded-xl bg-slate-100/70 border border-white/80 flex items-center justify-between gap-1 shadow-inner">
-            <div class="flex-1 text-center py-1.5 px-1 rounded-lg bg-white/90 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-              <span class="text-[10px] uppercase font-bold text-primary-container block">1. Niyat</span>
-              <span class="text-[11px] text-slate-800 font-medium truncate block">Nima uchun?</span>
-            </div>
-            <span class="material-symbols-outlined text-[15px] text-slate-400 px-0.5 font-bold">arrow_forward</span>
-            <div class="flex-1 text-center py-1.5 px-1 rounded-lg bg-white/90 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-              <span class="text-[10px] uppercase font-bold text-primary-container block">2. Natija</span>
-              <span class="text-[11px] text-slate-800 font-medium truncate block">Kutilma</span>
-            </div>
-            <span class="material-symbols-outlined text-[15px] text-slate-400 px-0.5 font-bold">arrow_forward</span>
-            <div class="flex-1 text-center py-1.5 px-1 rounded-lg bg-white/90 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-              <span class="text-[10px] uppercase font-bold text-primary-container block">3. Qadam</span>
-              <span class="text-[11px] text-slate-800 font-medium truncate block">Harakat</span>
-            </div>
+            ${lesson.keywords.map((word, index) => `
+              <div class="flex-1 text-center py-1.5 px-1 rounded-lg bg-white/90 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                <span class="text-[10px] uppercase font-bold text-primary-container block">${index + 1}-tayanch</span>
+                <span class="text-[11px] text-slate-800 font-medium truncate block">${escapeHtml(word)}</span>
+              </div>`).join('')}
           </div>
 
           <!-- Meta indicators -->
@@ -247,70 +265,18 @@ const Screens = {
           </button>
         </section>
 
-        <!-- 4. Smart 3D Audio Snapshot (Bugungi Urinishlar) -->
-        <section class="mt-1">
-          <div class="flex items-center justify-between mb-2.5 px-1">
-            <h3 class="font-headline text-[14.5px] font-bold text-slate-800">Bugungi audio urinishlar</h3>
-            <div class="flex items-center space-x-1 text-primary">
-              <span class="material-symbols-outlined text-[15px]">psychology</span>
-              <span class="text-[11px] font-semibold">Baholash: AI Murabbiy</span>
-            </div>
-          </div>
-
+        <!-- 4. Actual audio attempts for the current or most recent cycle -->
+        <section class="mt-1 stack-sm">
+          <h3 class="font-headline text-[14.5px] font-bold text-slate-800">Bugungi audio urinishlar</h3>
           <div class="grid grid-cols-2 gap-3">
-            <!-- Card 1: 1-urinish -->
-            <div class="glass-surface rounded-2xl p-3.5 flex flex-col justify-between border-l-4 border-l-primary-container">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-bold text-slate-600">1-urinish</span>
-                  <span class="px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 text-[10.5px] font-bold">
-                    ${activeDay?.firstScore ? `${activeDay.firstScore} ball` : '74 ball'}
-                  </span>
-                </div>
-                <!-- Mini audio waveform mock -->
-                <div class="bg-slate-100/80 rounded-xl p-2 flex items-center space-x-2 my-1">
-                  <button aria-label="Tinglash" class="w-7 h-7 rounded-full btn-3d-play text-white flex items-center justify-center shrink-0 active:scale-95" type="button" onclick="App.navigate('prepare',{day:${day}})">
-                    <span class="material-symbols-outlined text-[15px] translate-x-0.5">play_arrow</span>
-                  </button>
-                  <div class="flex items-center space-x-[2px] h-5 flex-1 overflow-hidden">
-                    <div class="w-1 bg-primary-container rounded-full h-2"></div>
-                    <div class="w-1 bg-primary-container rounded-full h-4"></div>
-                    <div class="w-1 bg-primary-container rounded-full h-2"></div>
-                    <div class="w-1 bg-primary-container rounded-full h-5"></div>
-                    <div class="w-1 bg-primary-container rounded-full h-3"></div>
-                    <div class="w-1 bg-slate-300 rounded-full h-2"></div>
-                    <div class="w-1 bg-slate-300 rounded-full h-4"></div>
-                  </div>
-                  <span class="text-[10px] text-slate-500 font-mono">0:58</span>
-                </div>
-              </div>
-              <div class="mt-2 pt-2 border-t border-slate-200/50 flex items-center space-x-1 text-[11px] text-slate-500">
-                <span class="material-symbols-outlined text-[13px] text-amber-600">info</span>
-                <span>${activeDay?.attempt1 ? '1-yozuv tayyor' : '4 ta parazit so‘z'}</span>
-              </div>
-            </div>
-
-            <!-- Card 2: 2-urinish (Navbatdagi) -->
-            <div class="glass-surface rounded-2xl p-3.5 flex flex-col justify-between border border-dashed border-primary/40 bg-white/40">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-bold text-primary-container">2-urinish</span>
-                  <span class="px-2 py-0.5 rounded-full bg-slate-200/70 text-slate-700 text-[10.5px] font-semibold">
-                    ${activeDay?.secondScore ? `${activeDay.secondScore} ball` : 'Navbatdagi'}
-                  </span>
-                </div>
-                <div class="py-0.5">
-                  <p class="text-[11.5px] font-semibold text-slate-800">${activeDay?.secondScore ? 'Yakunlangan' : 'Kutilmoqda'}</p>
-                  <p class="text-[10.5px] text-teal-700 mt-0.5 leading-tight">
-                    <strong class="font-bold">+12 ball</strong> o‘sish imkoni (1s sokin pauza qiling)
-                  </p>
-                </div>
-              </div>
-              <button class="mt-2.5 w-full py-1.5 rounded-xl bg-primary-soft border border-primary/20 text-primary-dark text-[11.5px] font-bold text-center active:scale-95 transition-all" type="button" onclick="${ctaAction}">
-                ${activeDay?.secondScore ? 'Solishtirish' : 'Boshlash'}
-              </button>
-            </div>
+            ${[homeAttempt1, homeAttempt2].map((attempt, index) => `
+              <div class="glass-surface stack-sm">
+                <strong>${index + 1}-urinish</strong>
+                <span class="glass-pill ${attempt ? 'primary' : ''}">${attempt ? `${attempt.evaluation.totalScore}/100` : 'Yozilmagan'}</span>
+                <small class="muted">${attempt ? `${attempt.durationSeconds} soniya · ${attempt.evaluation.fillerCount ?? '—'} parazit` : index === 1 && homeAttempt1 ? 'Fokus tanlang va qayta yozing' : 'Bugungi darsda yoziladi'}</small>
+              </div>`).join('')}
           </div>
+          ${homeAttempt1 && homeAttempt2 ? `<p class="muted small">Ikki urinish farqi: ${homeAttempt2.evaluation.totalScore - homeAttempt1.evaluation.totalScore > 0 ? '+' : ''}${homeAttempt2.evaluation.totalScore - homeAttempt1.evaluation.totalScore} ball. Bu bir mashq ichidagi o‘zgarish.</p>` : ''}
         </section>
 
         <!-- 5. Quick Voice Warm-Up Glass Widget (Tez aytish • Diksiya) -->
@@ -321,9 +287,9 @@ const Screens = {
                 <span class="material-symbols-outlined text-[20px]">graphic_eq</span>
               </div>
               <div>
-                <span class="text-[10px] uppercase font-bold text-amber-800 tracking-wider block">Tez aytish • Diksiya</span>
+                <span class="text-[10px] uppercase font-bold text-amber-800 tracking-wider block">Mustaqil mashqlar</span>
                 <p class="text-[12.5px] text-slate-800 font-semibold line-clamp-1">
-                  «Qishda kishmish pishmasmish...»
+                  Bugun bitta ko‘nikmani 3–5 daqiqada sinang
                 </p>
               </div>
             </div>
@@ -339,7 +305,7 @@ const Screens = {
             <span class="w-1.5 h-1.5 rounded-full ${capabilities?.configured ? 'bg-emerald-500' : 'bg-amber-400'}"></span>
             <span>${modelLabel}</span>
           </span>
-          <span>Nutq 30 v2.4</span>
+          <span>Nutq 30 v2.5</span>
         </div>
       </section>`;
   },
@@ -605,11 +571,11 @@ const Screens = {
             </span>
           </div>
 
-          <!-- 3D Pacing Indicator Pill -->
+          <!-- Pacing reminder; actual rate is measured after analysis -->
           <div class="glass-pill px-3 py-1 rounded-full flex items-center gap-2 border border-emerald-400/30 bg-emerald-950/40 mt-1">
             <span class="material-symbols-outlined text-emerald-300 text-[16px]">speed</span>
             <span class="text-[11.5px] font-semibold text-emerald-200">
-              Marom: <span class="text-white font-bold">Me'yorda</span> (120 so‘z/daq)
+              Marom: <span class="text-white font-bold">shoshilmasdan, ravshan gapiring</span>
             </span>
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
           </div>
@@ -744,22 +710,9 @@ const Screens = {
   /* ANALYSIS SCREEN (Matches Stitch eval_glass.png & eval_glass.html)        */
   /* ------------------------------------------------------------------------ */
   analysis(lesson, attempt) {
-    const att = attempt || {
-      attemptNumber: 1,
-      evaluation: {
-        totalScore: 78,
-        fillerCount: 3,
-        longPauseCount: 2,
-        wpm: 130,
-        transcript: 'Bugungi dars mavzusi bo‘yicha o‘z fikrimni ravon va ishonchli ifodalashga harakat qildim. Niyatim aniq...',
-        metricScores: (lesson?.activeMetrics || []).map(m => ({ metricId: m.id, score: 8, evidence: 'Yaxshi ifodalangan' })),
-        strengths: ['Aniq kirish va reja', 'Vazmin boshlanish'],
-        improvements: ['Parazit so‘zlarni kamaytirish', 'Gap oxirida pasayish'],
-        suggestedFocus: 'Fikrlar oralig‘ida 1.5s ongli sokin sukut saqlash'
-      }
-    };
-    const evaluation = att.evaluation;
-    const isFirst = att.attemptNumber === 1;
+    if (!attempt?.evaluation) return this.error('Tahlil tayyor emas', 'Avval audio yozib tahlil qiling.', "App.navigate('home')");
+    const evaluation = attempt.evaluation;
+    const isFirst = attempt.attemptNumber === 1;
 
     return `
       <section class="screen">
@@ -791,7 +744,7 @@ const Screens = {
             </div>
             <div class="mt-1">
               <span class="inline-block px-1.5 py-0.5 rounded-md text-[9px] font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-200">
-                ${evaluation.fillerCount === 0 ? 'Toza nutq' : `${evaluation.fillerCount} ta qayd`}
+                ${evaluation.fillerCount} ta qayd
               </span>
             </div>
           </div>
@@ -808,7 +761,7 @@ const Screens = {
             </div>
             <div class="mt-1">
               <span class="inline-block px-1.5 py-0.5 rounded-md text-[9px] font-bold text-amber-800 bg-amber-100/90 border border-amber-200">
-                1.5s vazmin
+                2s+ pauza
               </span>
             </div>
           </div>
@@ -825,7 +778,7 @@ const Screens = {
             </div>
             <div class="mt-1">
               <span class="inline-block px-1.5 py-0.5 rounded-md text-[9px] font-bold text-teal-800 bg-teal-100/90 border border-teal-200">
-                Me'yorda
+                so‘z/daq
               </span>
             </div>
           </div>
@@ -904,7 +857,7 @@ const Screens = {
         <div class="stack-sm">
           <span class="eyebrow">2-urinishga tayyorgarlik</span>
           <h1 class="text-2xl font-bold tracking-tight text-slate-900">Faqat bittasini o‘zgartiring</h1>
-          <p class="muted">Bir vaqtning o‘zida faqat 1 ta jihatga diqqat qaratish ikkinchi urinish sifatini maksimal oshiradi.</p>
+          <p class="muted">Bir vaqtning o‘zida bitta jihatni o‘zgartirsangiz, ikki urinish farqini aniqroq ko‘rasiz.</p>
         </div>
 
         <form class="stack-lg" onsubmit="App.startSecondAttempt(event)">
@@ -941,168 +894,78 @@ const Screens = {
   /* COMPARE SCREEN (Matches Stitch eval_glass.png dual-attempt view)         */
   /* ------------------------------------------------------------------------ */
   compare(lesson, attempt1, attempt2) {
-    const a1 = attempt1 || {
-      evaluation: {
-        totalScore: 74,
-        fillerCount: 4,
-        longPauseCount: 3,
-        wpm: 140
-      }
-    };
-    const a2 = attempt2 || {
-      evaluation: {
-        totalScore: 86,
-        fillerCount: 1,
-        longPauseCount: 2,
-        wpm: 124
-      }
-    };
-    const diff = a2.evaluation.totalScore - a1.evaluation.totalScore;
-    const fillerDiff = a1.evaluation.fillerCount - a2.evaluation.fillerCount;
+    if (!attempt1?.evaluation || !attempt2?.evaluation) {
+      return this.error('Taqqoslash tayyor emas', 'Avval ikkala audio urinishni tahlil qiling.', "App.navigate('home')");
+    }
+    const first = attempt1.evaluation;
+    const second = attempt2.evaluation;
+    const scoreDiff = second.totalScore - first.totalScore;
+    const fillerRate = item => item.wordCount > 0 ? Math.round(item.fillerCount / item.wordCount * 100) : null;
+    const metricChanges = lesson.activeMetrics.map(metric => {
+      const before = (first.metricScores || []).find(item => item.metricId === metric.id);
+      const after = (second.metricScores || []).find(item => item.metricId === metric.id);
+      return before && after ? { title: metric.title, before: before.score, after: after.score } : null;
+    }).filter(Boolean);
 
     return `
       <section class="screen">
         <div class="stack-sm">
-          <span class="eyebrow">${lesson.day}-kun · Yakuniy natija</span>
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Ikki urinishni solishtiring</h1>
-          <p class="muted">Ikkinchi urinish — kunning rasmiy yakuniy natijasi hisoblanadi.</p>
+          <span class="eyebrow">${lesson.day}-kun · Ikki urinish</span>
+          <h1>Natijani dalil bilan solishtiring</h1>
+          <p class="muted">Bu farq bitta mashq ichidagi o‘zgarish. Uzoq muddatli natija uchun nazorat kunlarini ko‘ring.</p>
         </div>
 
-        <!-- HERO GLASS CARD: Dual Attempt Comparison & Score Delta -->
-        <section class="glass-card-elevated rounded-[26px] p-4 relative overflow-hidden">
-          <div class="flex items-start justify-between">
-            <div>
-              <div class="flex items-center gap-1.5 mb-0.5">
-                <span class="material-symbols-outlined text-teal-700 text-[16px]">compare_arrows</span>
-                <span class="text-[11px] font-bold uppercase tracking-wider text-teal-900/70 font-headline">Urinishlar Solishtiruvi</span>
-              </div>
-              <div class="flex items-baseline gap-2">
-                <span class="text-[38px] font-extrabold font-headline leading-none tracking-tight text-slate-900 tnum">${a2.evaluation.totalScore}</span>
-                <span class="text-[16px] font-bold text-slate-400">/100</span>
-                <span class="text-[14px] line-through font-semibold text-slate-400/80 ml-1 tnum">${a1.evaluation.totalScore} ball</span>
-              </div>
-            </div>
+        <div class="glass-card-elevated stack-sm">
+          <span class="eyebrow">AI ballari farqi</span>
+          <strong class="text-3xl tnum">${scoreDiff > 0 ? '+' : ''}${scoreDiff} ball</strong>
+          <p class="muted small">${first.totalScore}/100 → ${second.totalScore}/100. Baholarni audio va transkripsiya bilan tekshiring.</p>
+        </div>
 
-            <!-- 3D Glass Growth Pill -->
-            <div class="glass-emerald-pill rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-sm">
-              <span class="material-symbols-outlined text-emerald-600 text-[18px] font-bold">trending_up</span>
-              <span class="text-[12px] font-bold font-headline text-emerald-800 tracking-tight">
-                ${diff >= 0 ? `+${diff}` : diff} ball sof o‘sish
-              </span>
-            </div>
-          </div>
+        <div class="grid grid-cols-2 gap-3">
+          ${[attempt1, attempt2].map((attempt, index) => `
+            <div class="glass-surface stack-sm">
+              <h2>${index + 1}-urinish</h2>
+              <strong class="text-2xl tnum">${attempt.evaluation.totalScore}/100</strong>
+              <p class="muted small">${attempt.durationSeconds} soniya · ${attempt.evaluation.fillerCount} parazit</p>
+              <button class="button secondary" type="button" data-attempt-id="${escapeHtml(attempt.id)}" onclick="App.playAttemptAudio(this.dataset.attemptId)">Audioni tinglash</button>
+            </div>`).join('')}
+        </div>
+        <audio id="attemptAudio" class="hidden" controls></audio>
 
-          <div class="h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent my-3.5"></div>
+        <div class="glass-surface stack-sm">
+          <h2>Kuzatilgan ko‘rsatkichlar</h2>
+          <div class="checkpoint-row"><strong>Parazitlar / 100 so‘z</strong><span>${fillerRate(first) ?? '—'} → ${fillerRate(second) ?? '—'}</span></div>
+          <div class="checkpoint-row"><strong>Ikki soniyadan uzun pauzalar</strong><span>${first.longPauseCount} → ${second.longPauseCount}</span></div>
+          <div class="checkpoint-row"><strong>So‘z / daqiqa</strong><span>${first.wpm} → ${second.wpm}. Tezroq gapirish har doim yaxshiroq emas.</span></div>
+        </div>
 
-          <!-- 1-URINISH (Dastlabki yozuv) -->
-          <div class="rounded-2xl p-2.5 bg-white/60 border border-white/80 mb-2.5 shadow-xs">
-            <div class="flex items-center justify-between mb-1.5">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-                <span class="text-[12px] font-bold text-slate-700">1-urinish <span class="font-normal text-slate-500">(Dastlabki yozuv)</span></span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-[11px] font-semibold text-slate-500">${a1.evaluation.totalScore} ball</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
-                  ${a1.evaluation.fillerCount} ta xato
-                </span>
-              </div>
-            </div>
-            <!-- Waveform 1 -->
-            <div class="flex items-center gap-2.5">
-              <button class="w-8 h-8 rounded-full btn-3d-secondary flex items-center justify-center text-slate-700 shrink-0" type="button" aria-label="Play 1">
-                <span class="material-symbols-outlined text-[18px] translate-x-0.5">play_arrow</span>
-              </button>
-              <div class="flex-1 flex items-center gap-[3px] h-6 px-1">
-                <span class="w-1 rounded-full bg-slate-300 h-2"></span>
-                <span class="w-1 rounded-full bg-slate-400 h-4"></span>
-                <span class="w-1 rounded-full bg-rose-400 h-6"></span>
-                <span class="w-1 rounded-full bg-slate-300 h-3"></span>
-                <span class="w-1 rounded-full bg-rose-500 h-5"></span>
-                <span class="w-1 rounded-full bg-slate-400 h-4"></span>
-                <span class="w-1 rounded-full bg-slate-300 h-2"></span>
-              </div>
-            </div>
-          </div>
+        <div class="glass-surface stack-sm">
+          <h2>Bugungi mezonlar</h2>
+          ${metricChanges.map(item => `<div class="checkpoint-row"><strong>${escapeHtml(item.title)}</strong><span>${item.before}/10 → ${item.after}/10</span></div>`).join('')}
+          <p class="muted small">AI bahosi subyektiv bo‘lishi mumkin. O‘zgargan mezon dalilini ikki tahlil matnida qayta ko‘ring.</p>
+        </div>
 
-          <!-- 2-URINISH (Yaxshilangan) -->
-          <div class="rounded-2xl p-2.5 bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-transparent border border-emerald-400/50 shadow-xs">
-            <div class="flex items-center justify-between mb-1.5">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-xs"></span>
-                <span class="text-[12px] font-bold text-teal-950">2-urinish <span class="font-normal text-emerald-800">(Tavsiyadan so‘ng)</span></span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-[11px] font-bold text-emerald-800 font-headline">${a2.evaluation.totalScore} ball</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">✓ Ravon ritm</span>
-              </div>
-            </div>
-            <!-- Waveform 2 -->
-            <div class="flex items-center gap-2.5">
-              <button class="w-8 h-8 rounded-full btn-3d-play flex items-center justify-center text-white shrink-0" type="button" aria-label="Play 2">
-                <span class="material-symbols-outlined text-[18px] translate-x-0.5">play_arrow</span>
-              </button>
-              <div class="flex-1 flex items-center gap-[3px] h-6 px-1">
-                <span class="w-1 rounded-full bg-teal-600 h-3"></span>
-                <span class="w-1 rounded-full bg-teal-600 h-5"></span>
-                <span class="w-1 rounded-full bg-emerald-500 h-6"></span>
-                <span class="w-1 rounded-full bg-slate-300 h-2" title="Sokin pauza"></span>
-                <span class="w-1 rounded-full bg-teal-600 h-5"></span>
-                <span class="w-1 rounded-full bg-emerald-500 h-6"></span>
-                <span class="w-1 rounded-full bg-teal-700 h-3"></span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 3 Glass Metric Counters -->
-        <section class="grid grid-cols-3 gap-2.5">
-          <div class="glass-card-subtle rounded-2xl p-3 flex flex-col justify-between text-center">
-            <span class="text-[10px] font-bold uppercase text-slate-500 block">Parazitlar</span>
-            <strong class="text-xl font-headline font-black text-slate-900 my-0.5 tnum">${a2.evaluation.fillerCount}</strong>
-            <span class="text-[10px] font-bold text-emerald-700">${fillerDiff > 0 ? `-${fillerDiff} ta kamaydi` : 'Barqaror'}</span>
-          </div>
-          <div class="glass-card-subtle rounded-2xl p-3 flex flex-col justify-between text-center">
-            <span class="text-[10px] font-bold uppercase text-slate-500 block">Pauzalar</span>
-            <strong class="text-xl font-headline font-black text-slate-900 my-0.5 tnum">${a2.evaluation.longPauseCount}</strong>
-            <span class="text-[10px] font-bold text-amber-700">1.5s vazmin</span>
-          </div>
-          <div class="glass-card-subtle rounded-2xl p-3 flex flex-col justify-between text-center">
-            <span class="text-[10px] font-bold uppercase text-slate-500 block">Nutq tempi</span>
-            <strong class="text-xl font-headline font-black text-slate-900 my-0.5 tnum">${a2.evaluation.wpm}</strong>
-            <span class="text-[10px] font-bold text-teal-700">Me'yorda</span>
-          </div>
-        </section>
-
-        <!-- Focus feedback -->
-        <div class="glass-surface p-3 rounded-2xl stack-sm text-xs">
-          <span class="text-slate-500 font-medium">Mashq qilingan asosiy fokus:</span>
-          <strong class="text-slate-800 text-sm">${escapeHtml(App.workout.selectedFocus || 'Erkin nutq')}</strong>
+        <div class="glass-surface stack-sm">
+          <h2>Tanlangan fokus</h2>
+          <p>${escapeHtml(App.workout.selectedFocus || attempt2.selectedFocus || 'Fokus saqlanmagan')}</p>
         </div>
 
         <form class="stack-lg" onsubmit="App.completeCurrentDay(event)">
           <fieldset>
-            <legend class="font-headline text-sm font-bold text-slate-900 mb-2">Natija qanday bo‘ldi?</legend>
+            <legend class="font-headline text-sm font-bold text-slate-900 mb-2">O‘zingiz qanday eshitdingiz?</legend>
             <div class="choice-grid">
-              <label class="choice"><input type="radio" name="comparison" value="yaxshilandi" checked> <span>Yaxshilandi</span></label>
+              <label class="choice"><input type="radio" name="comparison" value="yaxshilandi" required> <span>Yaxshilandi</span></label>
               <label class="choice"><input type="radio" name="comparison" value="bir_xil"> <span>Bir xil</span></label>
               <label class="choice"><input type="radio" name="comparison" value="qiyinlashdi"> <span>Qiyinlashdi</span></label>
             </div>
           </fieldset>
-
-          <div class="field">
-            <label for="reflection">Bugungi asosiy xulosangiz</label>
-            <textarea id="reflection" name="reflection" maxlength="800" placeholder="Masalan: Ikkinchi urinishda pauza qilish orqali parazit so‘zlarni to‘xtatdim…"></textarea>
-          </div>
-
-          <button class="button cta-3d-tactile" type="submit">
-            <span class="material-symbols-outlined">check</span>
-            <span>Mashq siklini saqlash</span>
-          </button>
+          <div class="field"><label for="reflection">Bugungi asosiy xulosangiz</label><textarea id="reflection" name="reflection" maxlength="800" placeholder="Aniq eshitilgan farqni yozing"></textarea></div>
+          <button class="button cta-3d-tactile" type="submit">Mashq siklini saqlash</button>
         </form>
       </section>`;
   },
 
+  /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
   /* COMPLETED SCREEN                                                         */
   /* ------------------------------------------------------------------------ */
@@ -1121,7 +984,7 @@ const Screens = {
               ${completion.dailyLatestScore ?? completion.secondScore}<span class="text-lg text-slate-400 font-normal">/100</span>
             </h1>
             <p class="text-sm font-semibold text-emerald-700">
-              O‘sish: ${(completion.dailyGrowth ?? completion.improvement) >= 0 ? '+' : ''}${completion.dailyGrowth ?? completion.improvement} ball
+              Ball farqi: ${(completion.dailyGrowth ?? completion.improvement) >= 0 ? '+' : ''}${completion.dailyGrowth ?? completion.improvement} ball
             </p>
           </div>
         </div>
@@ -1170,53 +1033,47 @@ const Screens = {
   /* ------------------------------------------------------------------------ */
   /* LIBRARY / DICTIONARY SCREEN                                              */
   /* ------------------------------------------------------------------------ */
-  library(user, curriculum) {
+  library(user, curriculum, drills = [], pillars = []) {
     const currentDay = user.progress.currentDay;
+    const sessions = user.drillSessions || [];
+    const unlockedDrills = drills.filter(item => item.unlockDay <= currentDay);
+    const scores = user.attempts?.[user.attempts.length - 1]?.evaluation?.pillarScores || {};
+    const weakPillar = Object.keys(scores).sort((a, b) => scores[a] - scores[b])[0];
+    const recommended = unlockedDrills.find(item => item.pillar === weakPillar && drillReviewState(item.id, sessions).due)
+      || unlockedDrills.find(item => drillReviewState(item.id, sessions).due) || unlockedDrills[0];
+    const pillarName = id => pillars.find(item => item.id === id)?.title || id;
     return `
       <section class="screen">
         <div class="stack-sm">
-          <span class="eyebrow">Bilimlar va Iboralar Banki</span>
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900">30 ta amaliy mikro-dars</h1>
-          <p class="muted">Ochilgan darslarni qayta ko‘rib chiqing yoki tezkor audio mashqlarni bajaring.</p>
+          <span class="eyebrow">Bilim va mashq zali</span>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Har bir ko‘nikmani mashq qiling</h1>
+          <p class="muted">Usulni yoddan eslang, ovoz chiqarib sinang va real suhbatda qo‘llang.</p>
         </div>
+
+        ${recommended ? `<div class="glass-card-elevated stack-sm">
+          <span class="eyebrow">Bugungi tavsiya</span>
+          <h2>${escapeHtml(recommended.title)}</h2>
+          <p class="muted small">${escapeHtml(pillarName(recommended.pillar))} · ${recommended.minutes} daqiqa · ${escapeHtml(drillReviewState(recommended.id, sessions).label)}</p>
+          <button class="button" type="button" onclick="App.navigate('drill',{id:'${recommended.id}'})">Mashqni ochish</button>
+        </div>` : ''}
+
+        <div class="stack-sm"><h2>Mustaqil mashqlar</h2><p class="muted small">1, 3 va 7 kundan keyin takrorlash eslatiladi. Belgilar o‘z kuzatuvingizdir.</p></div>
+        <div class="day-list">
+          ${unlockedDrills.map(drill => {
+            const state = drillReviewState(drill.id, sessions);
+            return `<button class="day-card" type="button" onclick="App.navigate('drill',{id:'${drill.id}'})">
+              <span class="day-number"><span class="material-symbols-outlined">${state.due ? 'exercise' : 'task_alt'}</span></span>
+              <span><strong>${escapeHtml(drill.title)}</strong><small>${escapeHtml(pillarName(drill.pillar))} · ${drill.minutes} daqiqa · ${escapeHtml(state.label)}</small></span>
+              <span class="glass-pill">${state.count}×</span>
+            </button>`;
+          }).join('')}
+        </div>
+
+        <div class="stack-sm"><h2>30 kunlik darslar</h2><p class="muted small">Avval o‘tilgan bilimlarni qayta ko‘ring.</p></div>
 
         <!-- Search Bar in Glass -->
         <div class="relative">
           <input id="librarySearch" type="text" placeholder="Dars yoki ko‘nikmani qidiring…" oninput="Screens.filterLessons(this.value)">
-        </div>
-
-        <!-- Weekly Speech Formula Card -->
-        <div class="glass-card-elevated stack-sm">
-          <div class="flex items-center justify-between">
-            <span class="eyebrow">Haftalik Kontrast Formula</span>
-            <span class="glass-pill primary text-xs">Amaliy qolip</span>
-          </div>
-          <h2 class="text-base font-bold text-slate-900">«Xo‘sh» so‘zi o‘rniga 1.5s ongli sukut</h2>
-          <p class="small muted leading-relaxed">
-            Fikrlarni ulashda parazit tovush chiqarmang — xotirjam nafas oling va pauza qiling. Bu nutqingizga vazminlik va ishonch bag‘ishlaydi.
-          </p>
-        </div>
-
-        <!-- 5-min Vocal Gym Card -->
-        <div class="glass-surface stack-sm">
-          <div class="flex items-center justify-between">
-            <h2 class="text-sm font-bold text-slate-900">5 daqiqalik Vokal Zali (Sur'at mashqi)</h2>
-            <span class="material-symbols-outlined text-primary text-[18px]">speed</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 pt-1">
-            <div class="p-2.5 rounded-xl bg-slate-100/70 border border-slate-200 text-center">
-              <strong class="text-sm font-headline text-slate-800">80 WPM</strong>
-              <small class="block text-[11px] text-slate-500">Vazmin</small>
-            </div>
-            <div class="p-2.5 rounded-xl bg-teal-100/70 border border-teal-200 text-center">
-              <strong class="text-sm font-headline text-teal-800">120 WPM</strong>
-              <small class="block text-[11px] text-teal-700">Me'yorda</small>
-            </div>
-            <div class="p-2.5 rounded-xl bg-amber-100/70 border border-amber-200 text-center">
-              <strong class="text-sm font-headline text-amber-800">160 WPM</strong>
-              <small class="block text-[11px] text-amber-700">Dinamik</small>
-            </div>
-          </div>
         </div>
 
         <!-- Lessons Day List -->
@@ -1237,6 +1094,28 @@ const Screens = {
       </section>`;
   },
 
+  drill(user, drill, pillars = []) {
+    if (!drill || drill.unlockDay > user.progress.currentDay) return this.error('Mashq ochilmadi', 'Bu mashq hali mavjud emas.', "App.navigate('library')");
+    const pillar = pillars.find(item => item.id === drill.pillar)?.title || drill.pillar;
+    const state = drillReviewState(drill.id, user.drillSessions || []);
+    return `<section class="screen">
+      <div class="flex items-center justify-between wrap gap-2"><span class="glass-pill primary">${escapeHtml(pillar)}</span><span class="glass-pill">${drill.minutes} daqiqa</span></div>
+      <div class="stack-sm"><h1>${escapeHtml(drill.title)}</h1><p class="muted">${escapeHtml(state.label)} · ${state.count} marta bajarilgan</p></div>
+      <article class="glass-surface stack-sm"><span class="eyebrow">1. Esga tushiring</span><h2>Usul</h2><p>${escapeHtml(drill.method)}</p><p class="muted small">Namuna: ${escapeHtml(drill.example)}</p></article>
+      <article class="glass-surface stack-sm"><span class="eyebrow">2. Ovoz chiqarib ayting</span><h2>${escapeHtml(drill.prompt)}</h2><p class="muted small">Bir marta odatdagidek, keyin usulni qo‘llab takrorlang. Iloji bo‘lsa telefoningizga yozib qayta eshiting.</p><button id="drillStart" class="button secondary" type="button" onclick="App.startDrillTimer()">Mashqni boshlash</button><strong id="drillTimer" class="tnum" role="timer">0 soniya</strong></article>
+      <article class="glass-surface stack-sm"><span class="eyebrow">3. Tekshiring</span><h2>${escapeHtml(drill.check)}</h2><p class="muted small">Real hayotda: ${escapeHtml(drill.transfer)}</p></article>
+      <form class="glass-surface stack practice-form" onsubmit="App.saveDrill(event,'${drill.id}')">
+        <h2>Mashq qaydi</h2>
+        <label class="drill-check"><input type="checkbox" name="drillCheck"> Usulni qaramasdan esladim</label>
+        <label class="drill-check"><input type="checkbox" name="drillCheck"> Ikki marta ovoz chiqarib aytdim</label>
+        <label class="drill-check"><input type="checkbox" name="drillCheck"> Tekshiruv savoliga aniq javob topdim</label>
+        <label class="stack-sm"><span>Qanday farq sezildi?</span><textarea name="reflection" maxlength="400" rows="3" placeholder="Masalan: ikkinchi aytishda parazitlar 4 tadan 2 taga tushdi"></textarea></label>
+        <button class="button" type="submit">Qaydni saqlash</button>
+        <p class="muted small">Bu o‘z kuzatuvingiz. Audio asosidagi ball kunlik darsda alohida hisoblanadi.</p>
+      </form>
+    </section>`;
+  },
+
   filterLessons(query) {
     const normalized = String(query || '').trim().toLowerCase();
     document.querySelectorAll('.library-item').forEach(item => {
@@ -1252,13 +1131,46 @@ const Screens = {
     const activeDay = progress.activeDay;
     const skillScores = progress.skillScores || {};
     const snapshots = progress.snapshots || [];
+    const checkpoints = [1, 7, 30].map(day => ({
+      day,
+      attempt: user.attempts.find(item => item.day === day && item.attemptNumber === 1)
+    }));
+    const baseline = checkpoints[0].attempt?.evaluation;
 
     return `
       <section class="screen">
         <div class="stack-sm">
           <span class="eyebrow">Shaxsiy Natijalar</span>
           <h1 class="text-2xl font-bold tracking-tight text-slate-900">Nutq ko‘nikmalari o‘sishi</h1>
-          <p class="muted">Har bir kunlik mashq orqali nutqingiz barqaror rivojlanadi.</p>
+          <p class="muted">Mashq qaydlari, bir xil topshiriqdagi nazorat yozuvlari va real suhbat kuzatuvlari.</p>
+        </div>
+
+        <div class="glass-surface stack-sm">
+          <h2>Taqqoslanadigan nazorat</h2>
+          <p class="muted small">1-, 7- va 30-kunda bir xil tanishtirish vazifasining birinchi audio urinishlari. Ikkinchi urinishdagi mashq ta’siri bu hisobga kirmaydi.</p>
+          ${checkpoints.map(({ day, attempt }) => {
+            const evaluation = attempt?.evaluation;
+            if (!evaluation) return `<div class="checkpoint-row"><strong>${day}-kun</strong><span class="muted">Hali yozilmagan</span></div>`;
+            const fillerRate = evaluation.wordCount > 0 ? Math.round(evaluation.fillerCount / evaluation.wordCount * 100) : null;
+            const delta = baseline && day !== 1 ? evaluation.totalScore - baseline.totalScore : null;
+            return `<div class="checkpoint-row"><strong>${day}-kun · ${evaluation.totalScore}/100</strong><span>${delta == null ? 'Boshlang‘ich' : `${delta > 0 ? '+' : ''}${delta} ball`} · ${fillerRate == null ? '—' : `${fillerRate}/100 so‘z parazit`} · ${evaluation.wpm || '—'} so‘z/daq</span><button class="button secondary" type="button" data-attempt-id="${escapeHtml(attempt.id)}" onclick="App.playAttemptAudio(this.dataset.attemptId)">Audioni tinglash</button></div>`;
+          }).join('')}
+          <audio id="attemptAudio" class="hidden" controls></audio>
+          <p class="muted small">Ball AI bahosi; uning o‘zgarishi yakka o‘zi real hayotdagi mahoratni isbotlamaydi. Bir xil qurilma va sharoitda yozing, audio va tinglovchi fikrini ham solishtiring.</p>
+        </div>
+
+        <div class="glass-surface stack-sm">
+          <h2>Real suhbatda sinash</h2>
+          <p class="muted small">Mashqdan keyin bir ko‘nikmani ishda yoki kundalik suhbatda qo‘llang. Odamning kuzatilgan javobini yozing; ism yoki maxfiy ma’lumot kiritmang.</p>
+          <form class="stack-sm practice-form" onsubmit="App.saveFieldReport(event)">
+            <label class="stack-xs"><span>Vaziyat</span><input name="situation" required maxlength="160" placeholder="Masalan: jamoa yig‘ilishida taklif berdim"></label>
+            <label class="stack-xs"><span>Qo‘llangan ko‘nikma</span><input name="skill" required maxlength="100" placeholder="Masalan: fikr–sabab–misol–xulosa"></label>
+            <label class="stack-xs"><span>Tinglovchi reaksiyasi</span><textarea name="evidence" required maxlength="400" rows="3" placeholder="Nima dedi yoki qildi? Taxmin emas, ko‘rganingizni yozing."></textarea></label>
+            <label class="stack-xs"><span>Natija</span><select name="outcome" required><option value="">Tanlang</option><option value="tushundi">Fikrni tushundi</option><option value="qayta_soradi">Qayta so‘radi</option><option value="amal_qildi">Keyingi harakatni qildi</option><option value="noma_lum">Hali noma’lum</option></select></label>
+            <label class="stack-xs"><span>Keyingi safar nima qilasiz?</span><input name="nextStep" maxlength="200" placeholder="Bitta aniq tuzatish"></label>
+            <button class="button" type="submit">Kuzatuvni saqlash</button>
+          </form>
+          ${(user.fieldReports || []).length ? `<div class="stack-sm"><h3>Oxirgi kuzatuvlar</h3>${user.fieldReports.slice(-3).reverse().map(item => `<div class="checkpoint-row"><strong>${escapeHtml(item.situation)}</strong><span>${escapeHtml(item.skill)} · ${escapeHtml(item.evidence)}</span></div>`).join('')}</div>` : '<p class="muted small">Hali real suhbat qaydi yo‘q.</p>'}
         </div>
 
         <!-- Stat Overview in Glass -->
@@ -1309,7 +1221,7 @@ const Screens = {
         <div class="glass-surface stack-sm">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-bold text-slate-900">Nazorat kunlari</h2>
-            <span class="text-xs text-slate-400">Dinamika</span>
+            <span class="text-xs text-slate-400">Mashq ballari</span>
           </div>
           ${snapshots.length ? `
             <div class="timeline">
@@ -1321,7 +1233,8 @@ const Screens = {
                 </div>
               `).join('')}
             </div>
-          ` : '<p class="muted small py-4 text-center">1-kun to‘liq yakunlangach birinchi nazorat grafigi ko‘rinadi.</p>'}
+          ` : '<p class="muted small py-4 text-center">1-kun to‘liq yakunlangach birinchi ball ko‘rinadi.</p>'}
+          <p class="muted small">Bu kunlardagi mavzu va mezonlar turlicha; yuqoridagi nazorat bilan alohida ko‘ring.</p>
         </div>
 
         <!-- 5 Speech Pillars Balance -->

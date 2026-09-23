@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { CURRICULUM, METRICS, getDay } = require('../server/learningContent');
+const { DRILLS, getDrill } = require('../server/practiceContent');
 const { validateEvaluation, wrapPcmAsWav } = require('../server/geminiService');
 
 test('30 kunlik kontent to‘liq va noyob', () => {
@@ -12,6 +13,18 @@ test('30 kunlik kontent to‘liq va noyob', () => {
     assert.ok(day.prompt);
     assert.ok(day.narrationText.length > 100);
     assert.ok(day.activeMetricIds.length >= 3);
+  }
+});
+
+test('mustaqil mashqlar barcha besh yo‘nalishni qamrab oladi va tekshiruvga ega', () => {
+  assert.equal(DRILLS.length, 15);
+  assert.equal(new Set(DRILLS.map(item => item.id)).size, DRILLS.length);
+  assert.deepEqual(new Set(DRILLS.map(item => item.pillar)), new Set(['ravonlik', 'aniqlik', 'tuzilma', 'yetkazish', 'ishonch']));
+  for (const drill of DRILLS) {
+    assert.ok(drill.prompt && drill.method && drill.example && drill.check && drill.transfer);
+    assert.ok(drill.minutes >= 3 && drill.minutes <= 5);
+    assert.ok(getDay(drill.unlockDay));
+    assert.equal(getDrill(drill.id), drill);
   }
 });
 
@@ -34,6 +47,8 @@ test('Gemini tahlili faqat faol mezonlar bilan validatsiya qilinadi', () => {
   const result = validateEvaluation(data, lesson, 60);
   assert.equal(result.totalScore, 70);
   assert.equal(result.metricScores.length, lesson.activeMetricIds.length);
+  assert.equal(result.wordCount, 7);
+  assert.equal(result.wpm, 7);
 });
 
 test('TTS PCM ma’lumoti yaroqli WAV sarlavhasi oladi', () => {
@@ -42,4 +57,3 @@ test('TTS PCM ma’lumoti yaroqli WAV sarlavhasi oladi', () => {
   assert.equal(wav.subarray(8, 12).toString(), 'WAVE');
   assert.equal(wav.length, 524);
 });
-

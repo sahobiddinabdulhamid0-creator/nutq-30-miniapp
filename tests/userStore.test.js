@@ -32,6 +32,37 @@ test('ikki foydalanuvchi progressini alohida saqlaydi', async t => {
   assert.notEqual(first.id, second.id);
 });
 
+test('mashq va real suhbat qaydlari foydalanuvchiga biriktiriladi va qayta ochilganda saqlanadi', async t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nutq30-practice-'));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
+  const store = new UserStore({ dataDir: tempDir });
+  const user = await store.getOrCreate({ id: 'practice-user', firstName: 'Mashq' });
+  await assert.rejects(store.addDrillSession(user.id, { drillId: 'silent-pause', completedChecks: 3, practiceSeconds: 60 }), /Avval boshlang‘ich/);
+  await store.finishOnboarding(user.id, { goal: 'ravonlik', level: 'boshlangich', dailyMinutes: 15, aiConsent: true });
+  await store.addDrillSession(user.id, { drillId: 'silent-pause', completedChecks: 3, practiceSeconds: 65, reflection: 'Ikkinchi urinishda ikki parazit kamaydi.' });
+  await store.addFieldReport(user.id, { situation: 'Yig‘ilish', skill: 'Pauza', outcome: 'tushundi', evidence: 'Hamkasb xulosani qayta aytdi.', nextStep: 'Jumlani qisqartiraman.' });
+  const restored = await new UserStore({ dataDir: tempDir }).getOrCreate({ id: 'practice-user', firstName: 'Mashq' });
+  assert.equal(restored.drillSessions.length, 1);
+  assert.equal(restored.drillSessions[0].practiceSeconds, 65);
+  assert.equal(restored.fieldReports.length, 1);
+  assert.equal(restored.fieldReports[0].outcome, 'tushundi');
+});
+
+test('uzun tarixda 1-kunning birinchi nazorat yozuvi saqlanadi', async t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nutq30-checkpoint-'));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
+  const store = new UserStore({ dataDir: tempDir });
+  const user = await store.getOrCreate({ id: 'checkpoint-user', firstName: 'Nazorat' });
+  await store.finishOnboarding(user.id, { goal: 'ravonlik', level: 'boshlangich', dailyMinutes: 15, aiConsent: true });
+  user.attempts = [
+    { id: 'baseline-audio', day: 1, attemptNumber: 1, evaluation: evaluation(40) },
+    ...Array.from({ length: 300 }, (_, index) => ({ id: `old-${index}`, day: 2, attemptNumber: 2, evaluation: evaluation(50) }))
+  ];
+  await store.addAttempt(user.id, { day: 1, durationSeconds: 60, evaluation: evaluation(55) });
+  assert.ok(user.attempts.some(item => item.id === 'baseline-audio'));
+  assert.ok(user.attempts.length <= 303);
+});
+
 test('R2 adapteri progressni qayta ishga tushganda tiklaydi', async () => {
   const objects = new Map();
   const client = {

@@ -11,6 +11,7 @@ const { createAuthMiddleware } = require('./auth');
 const { configureTelegramBot, handleTelegramUpdate } = require('./botService');
 const { analyzeSpeech, getCapabilities, synthesizeLesson } = require('./geminiService');
 const { CURRICULUM, METRICS, PILLARS, STAGES, getDay } = require('./learningContent');
+const { DRILLS, getDrill } = require('./practiceContent');
 const { createLiveTranscriptionGateway } = require('./liveTranscriptionGateway');
 const { UserStore, publicUser } = require('./userStore');
 const pkg = require('../package.json');
@@ -57,7 +58,7 @@ app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self' ws: wss: https://cdn.tailwindcss.com; frame-ancestors https://web.telegram.org https://*.telegram.org"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://telegram.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self' ws: wss:; frame-ancestors https://web.telegram.org https://*.telegram.org"
   );
   req.requestId = crypto.randomUUID();
   res.setHeader('X-Request-Id', req.requestId);
@@ -172,7 +173,41 @@ app.post('/api/onboarding', async (req, res, next) => {
 });
 
 app.get('/api/curriculum', (req, res) => {
-  res.json({ curriculum: CURRICULUM, stages: STAGES, metrics: METRICS, pillars: PILLARS });
+  res.json({ curriculum: CURRICULUM, stages: STAGES, metrics: METRICS, pillars: PILLARS, drills: DRILLS });
+});
+
+app.post('/api/drills/:id/complete', rateLimit({ windowMs: 60_000, max: 12, keyPrefix: 'drill' }), async (req, res, next) => {
+  try {
+    const drill = getDrill(req.params.id);
+    if (!drill) return res.status(404).json({ error: 'Mashq topilmadi.' });
+    const user = await store.getOrCreate(req.authUser);
+    if (user.progress.currentDay < drill.unlockDay) {
+      return res.status(403).json({ error: 'Bu mashq hali ochilmagan.' });
+    }
+    const completedChecks = integer(req.body.completedChecks, 2, 3, 'Bajarilgan tekshiruvlar');
+    const practiceSeconds = integer(req.body.practiceSeconds, 20, 1800, 'Mashq vaqti');
+    const reflection = shortText(req.body.reflection, 400, 'Kuzatuv', false);
+    const session = await store.addDrillSession(user.id, { drillId: drill.id, completedChecks, practiceSeconds, reflection });
+    res.json({ session, user: publicUser(user) });
+  } catch (error) { next(error); }
+});
+
+app.post('/api/field-reports', rateLimit({ windowMs: 60_000, max: 6, keyPrefix: 'field-report' }), async (req, res, next) => {
+  try {
+    const user = await store.getOrCreate(req.authUser);
+    const outcome = shortText(req.body.outcome, 30, 'Natija');
+    if (!['tushundi', 'qayta_soradi', 'amal_qildi', 'noma_lum'].includes(outcome)) {
+      return res.status(400).json({ error: 'Natija qiymati noto‘g‘ri.' });
+    }
+    const report = await store.addFieldReport(user.id, {
+      situation: shortText(req.body.situation, 160, 'Vaziyat'),
+      skill: shortText(req.body.skill, 100, 'Qo‘llangan ko‘nikma'),
+      outcome,
+      evidence: shortText(req.body.evidence, 400, 'Tinglovchi reaksiyasi'),
+      nextStep: shortText(req.body.nextStep, 200, 'Keyingi qadam', false)
+    });
+    res.json({ report, user: publicUser(user) });
+  } catch (error) { next(error); }
 });
 
 app.get('/api/curriculum/day/:day', (req, res) => {
